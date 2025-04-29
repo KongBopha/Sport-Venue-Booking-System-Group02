@@ -11,6 +11,6 @@
   </template>
   
   <script setup>
-  import communityImage from '@/assets/AboutUs/community.png';
+  import communityImage from '@/assets/Aboutus/community.png';
   </script>
   
