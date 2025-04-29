@@ -1,5 +1,5 @@
 <script setup>
-import Navbar from '@/components/Navbar.vue' // Ensure the path matches your project structure
+import Navbar from '@/components/Navbar.vue'  
 </script>
 <script>
 export default {

@@ -1,15 +1,24 @@
 <script setup>
-import Navbar from '@/components/Navbar.vue' // Ensure the path matches your project structure
+import Navbar from '@/components/Navbar.vue' 
+import AboutIntro from '@/components/Aboutus/AboutIntro.vue'
+import OurStory from '@/components/Aboutus/OurStory.vue'
+import Facilities from '@/components/Aboutus/Facilities.vue'
+import OurTeam from '@/components/Aboutus/OurTeam.vue'
+import CommunityInvolvement from '@/components/Aboutus/CommunityInvolvement.vue'
+import FaqSection from '@/components/Aboutus/FaqSection.vue'
+import Loginform from '@/components/Authen/Loginform.vue'
 </script>
-<script>
-export default {
-  name: 'AboutUs',
-  // Other options like methods, computed properties, lifecycle hooks, etc.
-}
-</script>
+
 <template>
   <main>
     <Navbar /> 
-    <div class="text-center mt-24 text-2xl">About Us page</div>
+    <AboutIntro />
+    <OurStory />
+    <Facilities />
+    <OurTeam />
+    <CommunityInvolvement />
+    <FaqSection />
+    <Loginform />
+
   </main>
 </template>
