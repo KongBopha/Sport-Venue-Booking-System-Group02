@@ -4,11 +4,18 @@ import HeroSection from '@/components/HeroSection.vue'
 import SportType from '@/components/SportType.vue'
 import SportService from '@/components/SportService.vue'
 import SpecialCost from '@/components/SpecialCost.vue'
+import Equipment from '@/components/Equipment.vue';
+import Carousel from '@/components/Carousel.vue'; // Ensure the path matches your project structure
+
 </script>
 <script>
 export default {
   name: 'Home',
-  // Other options like methods, computed properties, lifecycle hooks, etc.
+  components: {
+      Navbar,
+      Equipment,
+      Carousel,
+  },
 }
 </script>
 <template>
@@ -18,6 +25,7 @@ export default {
     <SportType />
     <SportService />
     <SpecialCost />
-    <div class="text-center mt-24 text-2xl">home page</div>
+    <Equipment />
+    <Carousel /> 
   </main>
 </template>
