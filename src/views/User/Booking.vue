@@ -1,4 +1,5 @@
 <script setup>
+<<<<<<< HEAD
 import Navbar from '@/components/Navbar.vue';
 import { ref } from 'vue';
 
@@ -86,6 +87,15 @@ const proceedBooking = () => {
     time: selectedTime.value
   });
 };
+=======
+import Navbar from '@/components/Navbar.vue'  
+</script>
+<script>
+export default {
+  name: 'Booking',
+  // Other options like methods, computed properties, lifecycle hooks, etc.
+}
+>>>>>>> 972376fed9c1b04e6b977124483f6d82fb352b9b
 </script>
 
 <template>
