@@ -1,105 +1,222 @@
-<script setup lang="ts">
-import Navbar from '@/components/Navbar.vue'
+<script setup>
 import { ref } from 'vue'
+import Navbar from '@/components/Navbar.vue'
+import ballImage from '@/assets/images/ball2.jpeg'
+import footballImg from '@/assets/images/football.png'
+import batmintonImg from '@/assets/images/batminton.png'
+import volleyballImg from '@/assets/images/volleyball.png'
 
-const selectedVenue = ref('')
-const selectedSport = ref('')
-const selectedDay = ref<string | null>(null)
-const selectedTime = ref<string | null>(null)
+const selectedDate = ref(null)
+const selectedTime = ref(null)
 
-const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri']
-const times = ['5:00 PM', '6:00 PM', '7:00 PM', '8:00 PM']
 
-// Mock available slots data
-const availabilityData: Record<string, Record<string, boolean>> = {
-  'Mon': { '5:00 PM': true,  '6:00 PM': false, '7:00 PM': true,  '8:00 PM': true },
-  'Tue': { '5:00 PM': false, '6:00 PM': true,  '7:00 PM': true,  '8:00 PM': false },
-  'Wed': { '5:00 PM': true,  '6:00 PM': true,  '7:00 PM': false, '8:00 PM': true },
-  'Thu': { '5:00 PM': false, '6:00 PM': false, '7:00 PM': true,  '8:00 PM': true },
-  'Fri': { '5:00 PM': true,  '6:00 PM': true,  '7:00 PM': true,  '8:00 PM': false }
+const currentMonth = ref('March 2025')
+const calendarDays = ref([
+  { day: 'Sun', date: 16, isAvailable: true },
+  { day: 'Mon', date: 17, isAvailable: true },
+  { day: 'Tue', date: 18, isAvailable: true },
+  { day: 'Wed', date: 19, isAvailable: true },
+  { day: 'Thu', date: 20, isAvailable: true },
+  { day: 'Fri', date: 21, isAvailable: true },
+  { day: 'Sat', date: 22, isAvailable: true }
+])
+
+const timeSlots = [
+  { time: '5:00 PM', slots: [
+    { day: 16, price: 50, duration: 120, available: false },
+    { day: 17, price: 50, duration: 120, available: true },
+    { day: 18, price: 50, duration: 120, available: true },
+    { day: 19, price: 50, duration: 120, available: false },
+    { day: 20, price: 50, duration: 120, available: true },
+    { day: 21, price: 50, duration: 120, available: true },
+    { day: 22, price: 50, duration: 120, available: true }
+  ]},
+  { time: '7:00 PM', slots: [
+    { day: 16, price: 50, duration: 120, available: true },
+    { day: 17, price: 50, duration: 120, available: true },
+    { day: 18, price: 50, duration: 120, available: true },
+    { day: 19, price: 50, duration: 120, available: true },
+    { day: 20, price: 50, duration: 120, available: true },
+    { day: 21, price: 50, duration: 120, available: true },
+    { day: 22, price: 50, duration: 120, available: true }
+  ]},
+  { time: '9:00 PM', slots: [
+    { day: 16, price: 50, duration: 120, available: true },
+    { day: 17, price: 50, duration: 120, available: true },
+    { day: 18, price: 50, duration: 120, available: true },
+    { day: 19, price: 50, duration: 120, available: true },
+    { day: 20, price: 50, duration: 120, available: true },
+    { day: 21, price: 50, duration: 120, available: true },
+    { day: 22, price: 50, duration: 120, available: true }
+  ]}
+]
+
+
+const selectedSport = ref(null)
+
+
+const selectDate = (day) => {
+  selectedDate.value = day
 }
 
-const selectVenue = (venue: string) => {
-  selectedVenue.value = venue
-}
-
-const selectSport = (sport: string) => {
-  selectedSport.value = sport
-}
-
-const selectSlot = (day: string, time: string) => {
-  if (availabilityData[day][time]) {
-    selectedDay.value = day
-    selectedTime.value = time
+const selectTime = (time, day) => {
+  
+  const timeSlot = timeSlots.find(slot => slot.time === time)
+  if (timeSlot) {
+    const daySlot = timeSlot.slots.find(slot => slot.day === day)
+    if (daySlot && daySlot.available) {
+      selectedTime.value = { time, day }
+    }
   }
 }
 
-const isSlotAvailable = (day: string, time: string) => availabilityData[day][time]
-const isSlotSelected = (day: string, time: string) => selectedDay.value === day && selectedTime.value === time
-
-const getSlotClass = (day: string, time: string) => {
-  if (isSlotSelected(day, time)) return 'bg-blue-500 text-white'
-  if (isSlotAvailable(day, time)) return 'bg-white hover:bg-blue-100'
-  return 'bg-gray-200 text-gray-400 cursor-not-allowed'
+const selectSport = (sport) => {
+  selectedSport.value = sport
 }
 
-const proceedBooking = () => {
-  console.log('Booking:', {
-    venue: selectedVenue.value,
-    sport: selectedSport.value,
-    day:   selectedDay.value,
-    time:  selectedTime.value
-  })
+const isSlotSelected = (time, day) => {
+  return selectedTime.value && selectedTime.value.time === time && selectedTime.value.day === day
+}
+
+const isSlotAvailable = (time, day) => {
+  const timeSlot = timeSlots.find(slot => slot.time === time)
+  if (timeSlot) {
+    const daySlot = timeSlot.slots.find(slot => slot.day === day)
+    return daySlot && daySlot.available
+  }
+  return false
 }
 </script>
 
 <template>
-  <main class="min-h-screen bg-gray-100">
+  <main class="min-h-screen bg-white">
     <Navbar />
-    <div class="max-w-4xl mx-auto mt-8 bg-white rounded-lg shadow p-6">
-      <h1 class="text-2xl font-bold mb-6">Book Venue</h1>
-      <!-- Step 1: Choose Venue -->
-      <div class="mb-8">
-        <h2 class="text-lg font-medium mb-4">Find Venue</h2>
-        <div class="flex">
-          <input 
-            v-model="selectedVenue"
-            type="text"
-            placeholder="Enter location"
-            class="w-full border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button class="bg-blue-500 text-white px-4 py-2 rounded-r-md">Search</button>
+
+    <!-- banner -->
+    <div class="w-full h-64 bg-cover bg-center relative" :style="`background-image: url(${ballImage})`">
+      <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+    </div>
+
+    <div class="flex justify-center mt-4">
+      <div class="flex gap-6 items-center text-center text-sm">
+        <div class="flex flex-col items-center text-[#4F6DF5]">
+          <div class="w-6 h-6 rounded-full bg-[#4F6DF5] text-white flex items-center justify-center text-xs">1</div>
+          <span>Booking</span>
+        </div>
+        <div class="w-10 h-0.5 bg-gray-400"></div>
+        <div class="flex flex-col items-center text-gray-400">
+          <div class="w-6 h-6 rounded-full border border-gray-400 flex items-center justify-center text-xs">2</div>
+          <span>Checkout</span>
+        </div>
+        <div class="w-10 h-0.5 bg-gray-400"></div>
+        <div class="flex flex-col items-center text-gray-400">
+          <div class="w-6 h-6 rounded-full border border-gray-400 flex items-center justify-center text-xs">3</div>
+          <span>Confirmation</span>
         </div>
       </div>
-      <!-- Time selection grid -->
-      <div class="mb-8">
-        <h2 class="text-lg font-medium mb-4">Select Time</h2>
-        <div class="border border-gray-300 rounded-lg overflow-hidden">
-          <div class="grid grid-cols-5 bg-gray-100 border-b border-gray-300">
-            <div v-for="day in days" :key="day" class="p-2 text-center text-sm font-medium">{{ day }}</div>
+    </div>
+
+    
+    <div class="flex justify-center mt-6">
+      <div class="w-[80%] bg-white p-6 rounded-md shadow-md">
+        <!-- venue selection -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Find Venue</label>
+            <select class="w-full border rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
+              <option>Choose Venue</option>
+              <option>Venue 1</option>
+              <option>Venue 2</option>
+            </select>
           </div>
-          <div v-for="time in times" :key="time" class="grid grid-cols-5 border-b border-gray-200 last:border-b-0">
-            <div v-for="day in days" :key="`${day}-${time}`" class="border-r border-gray-200 last:border-r-0 p-2 text-center text-sm">
-              <button
-                @click="selectSlot(day, time)"
-                :disabled="!isSlotAvailable(day, time)"
-                :class="['w-full py-1 rounded transition-colors duration-200', getSlotClass(day, time)]"
+    
+          <div>
+            <label class="block text-gray-700 font-semibold mb-2">Select Sport</label>
+            <div class="flex gap-2">
+              <button 
+                :class="['border rounded-md p-2', selectedSport === 'football' ? 'bg-blue-100 border-blue-500' : 'hover:bg-blue-100']"
+                @click="selectSport('football')"
               >
-                {{ isSlotAvailable(day, time) ? 'Available' : 'Booked' }}
+                <img :src="footballImg" alt="Football" class="w-10 h-10 object-contain" />
+              </button>
+              <button 
+                :class="['border rounded-md p-2', selectedSport === 'batminton' ? 'bg-blue-100 border-blue-500' : 'hover:bg-blue-100']"
+                @click="selectSport('batminton')"
+              >
+                <img :src="batmintonImg" alt="Batminton" class="w-10 h-10 object-contain" />
+              </button>
+              <button 
+                :class="['border rounded-md p-2', selectedSport === 'volleyball' ? 'bg-blue-100 border-blue-500' : 'hover:bg-blue-100']"
+                @click="selectSport('volleyball')"
+              >
+                <img :src="volleyballImg" alt="Volleyball" class="w-10 h-10 object-contain" />
               </button>
             </div>
           </div>
         </div>
-      </div>
-      <div class="flex justify-center">
-        <button
-          @click="proceedBooking"
-          :disabled="!selectedVenue || !selectedDay || !selectedTime"
-          :class="[
-            'px-8 py-3 rounded-md text-white font-medium',
-            selectedVenue && selectedDay && selectedTime ? 'bg-blue-500 hover:bg-blue-600' : 'bg-gray-400 cursor-not-allowed'
-          ]"
-        >Proceed</button>
+
+        <!-- date selection -->
+        <div class="mb-4">
+          <label class="block text-gray-700 font-semibold mb-2">Select Time</label>
+          <div class="flex items-center gap-2">
+            <button class="flex items-center gap-1 border rounded-md px-4 py-2 hover:bg-blue-100">
+              {{ currentMonth }} <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path
+                stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- time slot -->
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-center border-collapse">
+            <thead>
+              <tr class="bg-gray-100">
+                <th class="py-2 px-4">Start Time</th>
+                <th 
+                  v-for="day in calendarDays" 
+                  :key="day.day" 
+                  class="py-2 px-4 cursor-pointer"
+                  :class="[selectedDate === day.date ? 'bg-[#4F6DF5] text-white rounded-t-md' : '']"
+                  @click="selectDate(day.date)"
+                >
+                  {{ day.day }}<br>{{ day.date }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="timeSlot in timeSlots" :key="timeSlot.time">
+                <td class="py-2 border">{{ timeSlot.time }}</td>
+                <td 
+                  v-for="(day, index) in calendarDays" 
+                  :key="`${timeSlot.time}-${day.date}`" 
+                  class="py-2 border relative"
+                  :class="[
+                    !isSlotAvailable(timeSlot.time, day.date) ? 'text-gray-400' : 
+                    isSlotSelected(timeSlot.time, day.date) ? 'bg-[#4F6DF5] text-white' : ''
+                  ]"
+                  @click="isSlotAvailable(timeSlot.time, day.date) && selectTime(timeSlot.time, day.date)"
+                >
+                  <div v-if="!isSlotAvailable(timeSlot.time, day.date)">Booked</div>
+                  <div v-else>
+                    {{ timeSlot.slots[index].price }}$<br>{{ timeSlot.slots[index].duration }} min
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- proceed button -->
+        <div class="flex justify-center mt-6">
+          <button 
+            class="bg-[#4F6DF5] hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-md transition"
+            :disabled="!selectedTime || !selectedSport"
+            :class="{ 'opacity-50 cursor-not-allowed': !selectedTime || !selectedSport }"
+          >
+            Proceed
+          </button>
+        </div>
       </div>
     </div>
   </main>
