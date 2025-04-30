@@ -4,6 +4,8 @@ import VenueHeroSection from '@/components/venue/VenueHeroSection.vue';
 import SportButtoms from '@/components/venue/SportButtoms.vue';
 import SportOverView from '@/components/venue/SportOverView.vue';
 import SportReview from '@/components/venue/SportReview.vue';
+import CourtRent from '@/components/venue/CourtRent.vue';
+import VenueFooter from '@/components/venue/VenueFooter.vue';
 
 </script>
 <script>
@@ -13,11 +15,19 @@ export default {
 }
 </script>
 <template>
-  <main>
-    <Navbar /> 
-    <VenueHeroSection /> 
-    <SportButtoms /> 
-    <SportOverView /> 
-    <SportReview /> 
-  </main>
+  <div class="flex flex-col min-h-screen">
+    <!-- Main content -->
+    <main class="flex-grow">
+      <Navbar /> 
+      <VenueHeroSection /> 
+      <SportButtoms /> 
+      <SportOverView /> 
+      <SportReview /> 
+      <CourtRent /> 
+    </main>
+
+    <!-- Footer sticks to bottom -->
+    <VenueFooter />
+  </div>
 </template>
+

@@ -1,5 +1,5 @@
 <template>
-  <div class="reviews-container p-6 bg-white rounded-lg shadow-sm">
+  <div class="reviews-container p-6 bg-white rounded-lg shadow-sm mx-5">
     <h2 class="text-2xl font-bold mb-6">Reviews</h2>
     
     <!-- Rating Summary Section -->
