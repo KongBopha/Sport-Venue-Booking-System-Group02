@@ -5,8 +5,10 @@ import SportType from '@/components/SportType.vue'
 import SportService from '@/components/SportService.vue'
 import SpecialCost from '@/components/SpecialCost.vue'
 import Equipment from '@/components/Equipment.vue';
-import Carousel from '@/components/Carousel.vue'; // Ensure the path matches your project structure
-
+import Carousel from '@/components/Carousel.vue'; 
+import Footer from '@/components/Footer.vue';
+import Excellentplan from '@/components/Excellentplan.vue';
+import Usertestimonial from '@/components/Usertestimonial.vue'
 </script>
 <script>
 export default {
@@ -15,6 +17,9 @@ export default {
       Navbar,
       Equipment,
       Carousel,
+      Footer,
+      Excellentplan,
+      Usertestimonial,
   },
 }
 </script>
@@ -26,6 +31,10 @@ export default {
     <SportService />
     <SpecialCost />
     <Equipment />
-    <Carousel /> 
+    <Carousel />
+    <Excellentplan />
+    <Usertestimonial />
+    
+    <Footer />
   </main>
 </template>

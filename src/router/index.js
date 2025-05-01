@@ -25,8 +25,10 @@ const routes = [
       {
         path: 'contact',
         component: () => import('@/views/User/ContactUs.vue')
-      }
+      },
+
     ]
+    
   }
 ];
 
