@@ -1,9 +1,9 @@
 <template>
     <div>
         <div class="text-3xl ml-10 my-10">Football</div>
-        <div class="carousel rounded-box">
+        <div class="carousel rounded-box w-[118rem]">
             <div class="carousel-items flex overflow-x-auto">
-                <div class="carousel-item flex flex-column" v-for="(football, index) in CarouselFootball" :key="index">
+                <div class="carousel-item ml-[2rem] flex flex-column" v-for="(football, index) in CarouselFootball" :key="index">
                     <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                         <a href="#">
                             <img class="h-[13rem] w-full p-8 rounded-t-lg" :src="football.src" :alt="football.alt" />
@@ -27,9 +27,9 @@
     </div>
     <div>
         <div class="text-3xl ml-10 my-10">Volleyball</div>
-        <div class="carousel rounded-box">
+        <div class="carousel rounded-box w-[118rem]">
             <div class="carousel-items flex overflow-x-auto">
-                <div class="carousel-item flex flex-column" v-for="(volleyball, index) in CarouselVolleyball" :key="index">
+                <div class="carousel-item ml-[2rem] flex flex-column" v-for="(volleyball, index) in CarouselVolleyball" :key="index">
                     <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                         <a href="#">
                             <img class="h-[13rem] w-full p-8 rounded-t-lg" :src="volleyball.src" :alt="volleyball.alt" />
@@ -55,9 +55,9 @@
     </div>
     <div>
         <div class="text-3xl ml-10 my-10">Table Tennis</div>
-        <div class="carousel rounded-box">
+        <div class="carousel rounded-box w-[118rem]">
             <div class="carousel-items flex overflow-x-auto">
-                <div class="carousel-item flex flex-column" v-for="(tennis, index) in CarouselTableTennis" :key="index">
+                <div class="carousel-item ml-[2rem] flex flex-column" v-for="(tennis, index) in CarouselTableTennis" :key="index">
                     <div class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
                         <a href="#">
                             <img class="h-[13rem] w-full p-8 rounded-t-lg" :src="tennis.src" :alt="tennis.alt" />
