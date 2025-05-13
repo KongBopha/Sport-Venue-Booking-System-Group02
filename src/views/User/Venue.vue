@@ -6,8 +6,10 @@ import SportOverView from '@/components/venue/SportOverView.vue';
 import SportReview from '@/components/venue/SportReview.vue';
 import CourtRent from '@/components/venue/CourtRent.vue';
 import VenueFooter from '@/components/venue/VenueFooter.vue';
-
+import { ref } from 'vue';
+const selectedSport = ref('Football Sport'); // default sport
 </script>
+  
 <script>
 export default {
   name: 'Venue',
@@ -20,8 +22,10 @@ export default {
     <main class="flex-grow">
       <Navbar /> 
       <VenueHeroSection /> 
-      <SportButtoms /> 
-      <SportOverView /> 
+      <!-- Emit selected sport -->
+      <SportButtoms @sport-selected="(sport) => selectedSport = sport" />
+      <!-- Pass it to overview -->
+      <SportOverView :selectedSport="selectedSport" />
       <SportReview /> 
       <CourtRent /> 
     </main>
