@@ -34,7 +34,7 @@ export default {
     <Carousel />
     <Excellentplan />
     <Usertestimonial />
-    
+
     <Footer />
   </main>
 </template>
