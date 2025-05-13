@@ -4,18 +4,18 @@
     >
 
     <button class="flex items-center justify-center border border-blue-600 rounded-xl">
-        <div class="px-6 py-4 text-[20px] font-bold text-black">
+        <div class="px-6 py-4 text-[20px] font-bold text-black"  @click="$emit('sport-selected', 'Football Sport')">
             Football Sport
         </div>
     </button>
 
     <button class="flex items-center justify-center border border-blue-600 rounded-xl">
-        <div class="px-6 py-4 text-[20px] font-bold text-black">
+        <div class="px-6 py-4 text-[20px] font-bold text-black" @click="$emit('sport-selected', 'Valleyball')">
             Valleyball
         </div>
     </button>
 
-    <button class="flex items-center justify-center border border-blue-600 rounded-xl">
+    <button class="flex items-center justify-center border border-blue-600 rounded-xl"   @click="$emit('sport-selected', 'Table Tennis')">
         <div class="px-6 py-4 text-[20px] font-bold text-black">
             Table Tennis
         </div>
