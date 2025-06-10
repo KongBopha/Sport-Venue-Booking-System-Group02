@@ -8,7 +8,7 @@ const navigateTo = (path) => {
 </script>
 
 <template>
-  <nav class="bg-white shadow-md px-8 py-4">
+  <nav class="fixed top-0 left-0 w-full bg-white shadow-md px-8 py-4 z-50">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
       <!-- Logo / Brand -->
       <div class="text-2xl font-bold text-blue-600 cursor-pointer" @click="navigateTo('/user/home')">

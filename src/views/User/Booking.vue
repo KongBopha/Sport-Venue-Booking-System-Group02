@@ -5,6 +5,7 @@ import ballImage from '@/assets/images/ball2.jpeg'
 import footballImg from '@/assets/images/football.png'
 import batmintonImg from '@/assets/images/batminton.png'
 import volleyballImg from '@/assets/images/volleyball.png'
+import Footer from '@/components/Footer.vue';
 
 const selectedDate = ref(null)
 const selectedTime = ref(null)
@@ -219,5 +220,6 @@ const isSlotAvailable = (time, day) => {
         </div>
       </div>
     </div>
+    <Footer/>
   </main>
 </template>

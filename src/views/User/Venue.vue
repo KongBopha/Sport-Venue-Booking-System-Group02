@@ -5,7 +5,8 @@ import SportButtoms from '@/components/venue/SportButtoms.vue';
 import SportOverView from '@/components/venue/SportOverView.vue';
 import SportReview from '@/components/venue/SportReview.vue';
 import CourtRent from '@/components/venue/CourtRent.vue';
-import VenueFooter from '@/components/venue/VenueFooter.vue';
+// import VenueFooter from '@/components/venue/VenueFooter.vue';
+import Footer from '@/components/Footer.vue';
 
 </script>
 <script>
@@ -24,10 +25,11 @@ export default {
       <SportOverView /> 
       <SportReview /> 
       <CourtRent /> 
+
     </main>
 
     <!-- Footer sticks to bottom -->
-    <VenueFooter />
+    <Footer />
   </div>
 </template>
 
