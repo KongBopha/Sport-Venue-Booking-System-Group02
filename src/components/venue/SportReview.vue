@@ -1,135 +1,170 @@
 <template>
+  <!-- Sport buttons section -->
+  <section
+    class="flex flex-wrap flex-auto w-full min-h-[150px] items-center justify-center gap-x-[200px] gap-y-10 py-10"
+  >
+    <button
+      v-for="sport in sports"
+      :key="sport.id"
+      @click="selectSport(sport.id)"
+      :class="[
+        'flex items-center justify-center border rounded-xl px-6 py-4 text-[20px] font-bold cursor-pointer',
+        selectedSport === sport.id
+          ? 'border-blue-800 bg-blue-100 text-blue-800'
+          : 'border-blue-600 text-black',
+      ]"
+    >
+      {{ sport.name }}
+    </button>
+  </section>
+
+  <!-- Reviews display -->
   <div class="reviews-container p-6 bg-white rounded-lg shadow-sm mx-5">
-    <h2 class="text-2xl font-bold mb-6">Reviews</h2>
-    
-    <!-- Rating Summary Section -->
-    <div class="flex flex-col md:flex-row mb-6">
-      <!-- Overall Rating -->
-      <div class="bg-gray-200 rounded-lg p-6 flex flex-col items-center justify-center md:w-1/4 mb-4 md:mb-0 md:mr-4">
-        <div class="text-green-500 text-3xl font-bold">4.8</div>
-        <div class="text-gray-600 text-sm">Out of 5.0</div>
-        <div class="flex mt-2">
-          <StarIcon v-for="i in 5" :key="i" class="h-6 w-6 text-yellow-400 fill-current" />
-        </div>
-      </div>
-      
-      <!-- Recommendation Stats -->
-      <div class="bg-white border rounded-lg p-6 flex-1">
-        <div class="font-medium mb-4">Recommended by 95% of player</div>
-        
-        <div class="grid grid-cols-3 gap-4">
-          <div v-for="(stat, index) in qualityStats" :key="index" class="flex flex-col">
-            <div class="text-sm text-gray-600 mb-1">{{ stat.label }}</div>
-            <div class="text-sm font-medium mb-1">{{ stat.value }}</div>
-            <div class="flex">
-              <div v-for="i in 5" :key="i" class="h-2 w-6 bg-yellow-400 mr-0.5"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Divider -->
-    <div class="border-t my-4"></div>
-    
-    <!-- Reviews List -->
-    <div class="space-y-4">
-      <div v-for="(review, index) in reviews" :key="index" class="border rounded-lg p-4">
-        <!-- Review Header -->
-        <div class="flex items-center mb-3">
-          <img :src="review.avatar" alt="User avatar" class="w-12 h-12 rounded-full mr-3" />
-          <div>
-            <div class="font-medium">{{ review.name }} Booked on {{ review.bookingDate }}</div>
-            <div class="flex items-center">
-              <div class="flex mr-2">
-                <StarIcon v-for="i in 5" :key="i" class="h-5 w-5 text-yellow-400 fill-current" />
-              </div>
-              <span class="text-gray-600">{{ review.rating }}</span>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Review Content -->
-        <div class="ml-0 md:ml-14">
-          <div class="text-green-500 mb-2">{{ review.recommendation }}</div>
-          <div class="font-medium mb-1">{{ review.title }}</div>
-          <p class="text-gray-600 mb-4">{{ review.content }}</p>
-          
-          <!-- Review Images -->
-          <div class="flex flex-wrap gap-2 mb-2">
-            <img 
-              v-for="(image, imgIndex) in review.images" 
-              :key="imgIndex" 
-              :src="image" 
-              alt="Review image" 
-              class="w-20 h-20 object-cover rounded"
+    <h2 class="text-2xl font-bold mb-6">User Reviews</h2>
+
+    <div v-if="store.loading" class="text-center text-gray-500">Loading...</div>
+    <div v-if="store.error" class="text-red-500">{{ store.error }}</div>
+
+    <div v-if="!store.loading && !store.error">
+      <div class="flex flex-col md:flex-row mb-6">
+        <!-- Average rating box -->
+        <div
+          class="bg-gray-100 rounded-lg p-6 flex flex-col items-center justify-center md:w-1/4 mb-4 md:mb-0 md:mr-4"
+        >
+          <div class="text-green-600 text-3xl font-bold">{{ averageRating.toFixed(1) }}</div>
+          <div class="text-gray-600 text-sm">Out of 5.0</div>
+          <div class="flex mt-2">
+            <font-awesome-icon
+              v-for="(star, index) in stars"
+              :key="index"
+              :icon="['fas', 'star']"
+              class="h-6 w-6 text-yellow-400"
+              :class="{ 'opacity-100': star.active, 'opacity-30': !star.active }"
             />
           </div>
-          
-          <div class="text-sm text-gray-500">Sent on {{ review.sentDate }}</div>
+        </div>
+
+        <!-- Quality stats and recommended percentage -->
+        <div class="bg-white border rounded-lg p-6 flex-1">
+          <div class="font-medium mb-4">Recommended by {{ recommendedPercentage }}% of players</div>
+          <div class="grid grid-cols-3 gap-4">
+            <div v-for="(stat, index) in qualityStats" :key="index" class="flex flex-col">
+              <div class="text-sm text-gray-600 mb-1">{{ stat.label }}</div>
+              <div class="text-sm font-medium mb-1">{{ stat.value }}</div>
+              <div class="flex">
+                <div
+                  v-for="i in 5"
+                  :key="i"
+                  class="h-2 w-6 mr-0.5"
+                  :class="i <= 4 ? 'bg-yellow-400' : 'bg-gray-200'"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reviews list -->
+      <div class="border-t my-4"></div>
+      <div class="space-y-4">
+  <div
+    v-for="(review, index) in reviews"
+    :key="index"
+    class="border rounded-lg p-4"
+  >
+    <div class="flex items-center mb-3">
+      <img
+        src="https://cdn-icons-png.flaticon.com/512/147/147144.png"
+        alt="User avatar"
+        class="w-12 h-12 rounded-full mr-3"
+      />
+      <div>
+        <div class="flex">
+        <div class="font-medium text-lg">{{ review.user?.name || 'Anonymous User' }}</div>
+         <div class="ml-0 md:ml-14 text-gray-600 text-xs mt-1">
+          {{ formatDate(review.created_at) }}
+        </div>
+        </div>
+        <div class="flex items-center">
+          <div class="flex mr-2">
+            <font-awesome-icon
+              v-for="starIndex in 5"
+              :key="starIndex"
+              :icon="['fas', 'star']"
+              class="h-5 w-5"
+              :class="{
+                'text-yellow-400': starIndex <= review.rating,
+                'text-gray-300': starIndex > review.rating
+              }"
+            />
+          </div>
+          <span class="text-gray-600 text-sm">{{ review.rating }}</span>
         </div>
       </div>
     </div>
-    
-    <!-- Show More Button -->
-    <div class="flex justify-center mt-6">
-      <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-full">
-        Show more
-      </button>
+    <div class="ml-0 md:ml-14 text-gray-700">{{ review.description }}</div>
+    </div>
+    </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { Star as StarIcon } from 'lucide-vue-next';
+import { onMounted, watch, computed, ref } from 'vue';
+import { useSportRatingStore } from '@/stores/sportRating';
 
-// Quality statistics data
-const qualityStats = ref([
-  { label: 'Quality of player', value: '5.0' },
-  { label: 'Quality of player', value: '5.0' },
-  { label: 'Quality of player', value: '5.0' }
-]);
-
-// Sample review data
-const reviews = ref([
-  {
-    name: 'Amanda',
-    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-    bookingDate: '06/04/2023',
-    rating: '5.0',
-    recommendation: 'Yes, I would book again.',
-    title: 'Absolutely perfect',
-    content: 'If you are looking for a perfect place for friendly matches with your friends or a competitive match, It is the best place.',
-    images: [
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80'
-    ],
-    sentDate: '06/04/2023'
-  },
-  {
-    name: 'Amanda',
-    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-    bookingDate: '06/04/2023',
-    rating: '5.0',
-    recommendation: 'Yes, I would book again.',
-    title: 'Absolutely perfect',
-    content: 'If you are looking for a perfect place for friendly matches with your friends or a competitive match, It is the best place.',
-    images: [
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80',
-      'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=300&q=80'
-    ],
-    sentDate: '06/04/2023'
+const props = defineProps({
+  sportId: {
+    type: Number,
+    default: 1,
+    required: true,
   }
-]);
-</script>
+});
 
-<style scoped>
-/* Add any custom styles here if needed */
-</style>
+const store = useSportRatingStore();
+const localSportId = ref(props.sportId);
+
+// Fetch when component is mounted or prop changes
+const fetchData = () => {
+  store.fetchRatingsBySportId(props.sportId);
+};
+
+onMounted(fetchData);
+watch(() => props.sportId, fetchData);
+watch(
+  () => props.sportId,
+  (newSportId) => {
+    localSportId.value = newSportId;
+    store.fetchRatingsBySportId(newSportId);
+  },
+  { immediate: true }
+);
+
+const averageRating = computed(() => store.average);
+const reviews = computed(() => store.ratings);
+
+const stars = computed(() =>
+  Array.from({ length: 5 }, (_, i) => ({ active: i < Math.round(averageRating.value) }))
+);
+
+const qualityStats = ref([
+  { label: 'Facilities', value: 'Excellent' },
+  { label: 'Cleanliness', value: 'Very Good' },
+  { label: 'Experience', value: 'Outstanding' },
+]);
+
+const recommendedPercentage = computed(() => {
+  const total = reviews.value.length;
+  const recommended = reviews.value.filter(r => r.rating >= 4).length;
+  return total > 0 ? Math.round((recommended / total) * 100) : 0;
+});
+function formatDate(isoDateStr) {
+  if (!isoDateStr) return 'N/A';
+  const date = new Date(isoDateStr);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric', month: 'long', day: 'numeric',
+    hour: 'numeric', minute: 'numeric', hour12: true
+  }).format(date);
+}
+
+</script>
