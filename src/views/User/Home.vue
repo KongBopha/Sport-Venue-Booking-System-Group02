@@ -31,6 +31,7 @@ export default {
     <Equipment />
     <Carousel />
     <Excellentplan />
+    <Usertestimonial />
     
     <Footer />
   </main>
