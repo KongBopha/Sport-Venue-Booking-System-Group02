@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from 'vue';
+
 import Navbar from '@/components/Navbar.vue';
 import VenueHeroSection from '@/components/venue/VenueHeroSection.vue';
 import SportButtoms from '@/components/venue/SportButtoms.vue';
@@ -6,32 +8,31 @@ import SportOverView from '@/components/venue/SportOverView.vue';
 import SportReview from '@/components/venue/SportReview.vue';
 import CourtRent from '@/components/venue/CourtRent.vue';
 import VenueFooter from '@/components/venue/VenueFooter.vue';
-import { ref } from 'vue';
-const selectedSport = ref('Football Sport'); // default sport
-</script>
-  
-<script>
-export default {
-  name: 'Venue',
-  // Other options like methods, computed properties, lifecycle hooks, etc.
+
+const selectedSportId = ref(1);  // Default to Football
+
+function handleSportChange(sportId) {
+  selectedSportId.value = sportId;
 }
 </script>
+
 <template>
   <div class="flex flex-col min-h-screen">
-    <!-- Main content -->
     <main class="flex-grow">
-      <Navbar /> 
-      <VenueHeroSection /> 
-      <!-- Emit selected sport -->
-      <SportButtoms @sport-selected="(sport) => selectedSport = sport" />
-      <!-- Pass it to overview -->
-      <SportOverView :selectedSport="selectedSport" />
-      <SportReview /> 
-      <CourtRent /> 
-    </main>
+      <Navbar />
+      <VenueHeroSection />
 
-    <!-- Footer sticks to bottom -->
+      <!-- Sport selector -->
+      <SportButtoms
+        :selectedSportId="selectedSportId"
+        @sport-changed="handleSportChange"
+      />
+
+      <!-- Sport data components -->
+      <SportOverView :sportId="selectedSportId" />
+      <SportReview :sportId="selectedSportId" />
+      <CourtRent />
+    </main>
     <VenueFooter />
   </div>
 </template>
-

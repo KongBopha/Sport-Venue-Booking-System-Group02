@@ -1,16 +1,17 @@
 <template>
   <div
-    class="w-80 h-72 flex flex-col items-center justify-center
-           bg-white rounded-2xl shadow-md hover:shadow-2xl 
+    class="max-w-lg bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 hover:shadow-2xl 
            hover:scale-105 transition-all duration-300 ease-in-out cursor-pointer"
     data-aos="fade-up"
     data-aos-duration="800"
   >
-    <img :src="image" :alt="title" class="h-40 object-contain" />
-    <span class="mt-4 text-lg font-semibold text-gray-700">{{ title }}</span>
+    <img :src="image" :alt="title" class="w-full h-[23rem] object-contain" />
+    <div class="p-5">
+      <span class="block text-2xl text-center font-bold tracking-tight text-gray-900 dark:text-white">{{ title }}</span>
+    </div>
   </div>
 </template>
-  
+
 <script setup>
 defineProps({
   image: {
