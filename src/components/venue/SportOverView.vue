@@ -1,13 +1,13 @@
 <template>
     <div class="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 class="text-4xl font-bold mb-6">Football Sport</h1>
+      <h1 class="text-4xl font-bold mb-6">{{ selectedSport }}</h1>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Overview Section -->
         <div class="border rounded-lg p-6">
           <h2 class="text-xl font-semibold mb-4">Overview</h2>
           <p class="text-gray-700">
-            Football is a popular sport played worldwide, known for its thrilling action, teamwork,
+            {{ selectedSport }} is a popular sport played worldwide, known for its thrilling action, teamwork,
             and strategic play. There are two main types of football: association football (soccer)
             and American football, though other variations like Canadian football, rugby, and
             Australian rules football also exist.
@@ -144,6 +144,13 @@
     'https://images.unsplash.com/photo-1517466787929-bc90951d0974?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
     'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80'
   ]);
+  defineProps({
+  selectedSport: {
+    type: String,
+    required: true,
+    default: 'Football Sport'
+  }
+});
   </script>
   
   <style scoped>
