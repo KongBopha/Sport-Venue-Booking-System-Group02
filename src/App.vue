@@ -4,7 +4,7 @@ import './assets/main.css'
 </script>
 
 <!-- App.vue or a similar root component -->
-<template>
+<template> 
   <div id="app">
     <router-view></router-view> <!-- Components should render here -->
   </div>
