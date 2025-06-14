@@ -1,8 +1,3 @@
-<script>
-export default{
-    name: 'footer',
-}
-</script>
 <template>
     <!-- <div class="text-3xl ml-10 my-10"></div> -->
     <footer class="items-center bg-zinc-80  text-center text-surface dark:bg-neutral-700 dark:text-white">
@@ -20,35 +15,37 @@ export default{
                 </a>
 
             <!-- Newsletter sign-up form -->
-            <div>
+            <div><br>
             <form action="">
-                <div class="gird-cols-1 grid items-center justify-center gap-4 md:grid-cols-3">
+                <div
+                class="gird-cols-1 grid items-center justify-center gap-4 md:grid-cols-3">
                 <div class="md:mb-6 md:ms-auto"></div>
 
                 <!-- Newsletter sign-up input field -->
-                <div class="relative md:mb-6" data-twe-input-wrapper-init>
+                <div class="relative md:mb-6">
                     <input
+                    v-model="email"
                     type="email"
-                    class="peer block min-h-[auto] w-full rounded border border-gray-400  bg-transparent px-3 py-[0.50rem] leading-[1.9] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[twe-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-white dark:placeholder:text-neutral-300 dark:autofill:shadow-autofill dark:peer-focus:text-primary [&:not([data-twe-input-placeholder-active])]:placeholder:opacity-0"
-                    id="exampleFormControlInputEmail"
-                    placeholder="Email address" />
+                    class="peer block min-h-[auto] w-full rounded border border-gray-400 bg-transparent px-3 py-[0.50rem] leading-[1.9] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary dark:text-white dark:placeholder:text-neutral-300"
+                    placeholder="Email address" 
+                    required/>
                     <label
-                    for="exampleFormControlInputEmail"
-                    class="pointer-events-none absolute left-3  top-0 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.90rem] leading-[1.6] text-neutral-500 transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-focus:text-primary peer-data-[twe-input-state-active]:-translate-y-[0.9rem] peer-data-[twe-input-state-active]:scale-[0.8] motion-reduce:transition-none dark:text-neutral-200 dark:peer-focus:text-primary"
-                    >Email address
+                    for="Emailinput"
+                    class="pointer-events-none absolute left-3 top-0 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.90rem] leading-[1.6] text-neutral-500 transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-focus:text-primary dark:text-neutral-200">
                     </label>
                 </div>
 
                 <!-- Newsletter sign-up submit button -->
-                <div class="mb-6 md:me-auto">
-                    <button
-                    type="submit"
-                    class="inline-block rounded bg-green-500 hover:bg-green-400  px-6 pb-[6px] pt-2 text-xs font-medium uppercase leading-normal text-surface shadow-dark-3 shadow-black/30 transition duration-150 ease-in-out hover:shadow-dark-1 focus:shadow-dark-1 focus:outline-none focus:ring-0 active:shadow-1 dark:bg-neutral-700 dark:text-white"
-                    data-twe-ripple-init
-                    data-twe-ripple-color="light">
-                    Subscribe
-                    </button>
-                </div>
+                    <div class="mb-6 md:me-auto">
+                        <button
+                        type="submit"
+                        class="bg-green-500 hover:bg-green-400 px-6 py-2 rounded text-xs uppercase font-bold transition">
+                        Subscribe
+                        </button>
+                            <div v-if="successMessage" class="mt-4 text-green-400 font-semibold hidden">
+                                ✔ The form was sent successfully!
+                            </div>
+                    </div>
                 </div>
             </form>
             <hr class=" my-9 mx-auto w-[50rem] border-t-2 border-gray-400" />
@@ -126,3 +123,30 @@ export default{
         </div>
     </footer>
 </template>
+<script>
+export default {
+  name: 'footer',
+  data() {
+    return {
+      email: '',
+      success: true,
+    };
+  },
+  methods: {
+    subscribe() {
+      if (this.email.trim() !== '') {
+        this.success = true;
+        alert('✔ The form was sent successfully!');
+        this.email = '';
+        setTimeout(() => {
+          this.success = false;
+        }, 5000); // Hide message after 5 seconds
+      } else {
+        this.success = false;
+        alert('Please enter a valid email address.');
+      }
+    },
+  },
+};
+</script>
+

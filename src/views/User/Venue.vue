@@ -4,16 +4,17 @@ import { ref } from 'vue';
 import Navbar from '@/components/Navbar.vue';
 import VenueHeroSection from '@/components/venue/VenueHeroSection.vue';
 import SportButtoms from '@/components/venue/SportButtoms.vue';
-import SportOverView from '@/components/venue/SportOverView.vue';
-import SportReview from '@/components/venue/SportReview.vue';
-import CourtRent from '@/components/venue/CourtRent.vue';
-import VenueFooter from '@/components/venue/VenueFooter.vue';
-import { useRoute } from 'vue-router';
-
-const selectedSportId = ref(1);  // Default sport id to Football
-// Handler when a sport button is clicked, updates the sport id
-function handleSportChange(sportId) {
-  selectedSportId.value = sportId;
+import SportOverView from '@/components/venue/Football/SportOverView.vue';
+import SportReview from '@/components/venue/Football/SportReview.vue';
+import CourtRent from '@/components/venue/Football/CourtRent.vue';
+import Footer from '@/components/Footer.vue';
+const selectedSport = ref('Football Sport'); // default sport
+</script>
+  
+<script>
+export default {
+  name: 'Venue',
+  // Other options like methods, computed properties, lifecycle hooks, etc.
 }
 </script>
 
@@ -37,6 +38,8 @@ function handleSportChange(sportId) {
         />
       <router-view />
     </main>
-    <VenueFooter />
+
+    <!-- Footer sticks to bottom -->
+    <Footer />
   </div>
 </template>

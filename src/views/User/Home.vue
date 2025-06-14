@@ -8,7 +8,6 @@ import Equipment from '@/components/Equipment.vue';
 import Carousel from '@/components/Carousel.vue'; 
 import Footer from '@/components/Footer.vue';
 import Excellentplan from '@/components/Excellentplan.vue';
-import Usertestimonial from '@/components/Usertestimonial.vue'
 </script>
 <script>
 export default {
@@ -19,7 +18,6 @@ export default {
       Carousel,
       Footer,
       Excellentplan,
-      Usertestimonial,
   },
 }
 </script>
@@ -34,7 +32,7 @@ export default {
     <Carousel />
     <Excellentplan />
     <Usertestimonial />
-
+    
     <Footer />
   </main>
 </template>

@@ -24,12 +24,12 @@ function selectSport(sportId) {
 
 <template>
   <section
-    class="flex flex-wrap flex-auto w-full min-h-[150px] items-center justify-center gap-x-[200px] gap-y-10 py-10"
+    class="flex flex-wrap flex-auto w-full min-h-[150px] items-center  justify-center gap-x-[200px] gap-y-10 py-10"
   >
     <button
       v-for="sport in sports"
       :key="sport.id"
-      class="flex items-center justify-center border rounded-xl px-6 py-4 text-[20px] font-bold text-black"
+      class="flex items-center justify-center border hover:bg-blue-200 rounded-xl px-6 py-4 text-[20px] font-bold text-black"
       :class="{
         'border-blue-600 bg-blue-100': sport.id === selectedSportId,
         'border-gray-300': sport.id !== selectedSportId
@@ -38,5 +38,8 @@ function selectSport(sportId) {
     >
       {{ sport.label }}
     </button>
-  </section>
-</template>
+      
+    </section>
+  </template>
+ 
+
