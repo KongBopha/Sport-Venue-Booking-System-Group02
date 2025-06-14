@@ -4,9 +4,9 @@ import { ref } from 'vue';
 import Navbar from '@/components/Navbar.vue';
 import VenueHeroSection from '@/components/venue/VenueHeroSection.vue';
 import SportButtoms from '@/components/venue/SportButtoms.vue';
-import SportOverView from '@/components/venue/SportOverView.vue';
-import SportReview from '@/components/venue/SportReview.vue';
-import CourtRent from '@/components/venue/CourtRent.vue';
+import SportOverView from '@/components/venue/Football/SportOverView.vue';
+import SportReview from '@/components/venue/Football/SportReview.vue';
+import CourtRent from '@/components/venue/Football/CourtRent.vue';
 import Footer from '@/components/Footer.vue';
 const selectedSport = ref('Football Sport'); // default sport
 </script>
