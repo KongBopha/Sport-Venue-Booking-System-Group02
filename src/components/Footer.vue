@@ -129,7 +129,7 @@ export default {
   data() {
     return {
       email: '',
-      success: false,
+      success: true,
     };
   },
   methods: {

@@ -7,8 +7,7 @@ import SportButtoms from '@/components/venue/SportButtoms.vue';
 import SportOverView from '@/components/venue/SportOverView.vue';
 import SportReview from '@/components/venue/SportReview.vue';
 import CourtRent from '@/components/venue/CourtRent.vue';
-import VenueFooter from '@/components/venue/VenueFooter.vue';
-import { ref } from 'vue';
+import Footer from '@/components/Footer.vue';
 const selectedSport = ref('Football Sport'); // default sport
 </script>
   
@@ -33,6 +32,6 @@ export default {
     </main>
 
     <!-- Footer sticks to bottom -->
-    <VenueFooter />
+    <Footer />
   </div>
 </template>
