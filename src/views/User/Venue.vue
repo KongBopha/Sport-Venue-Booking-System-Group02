@@ -22,13 +22,21 @@ export default {
   <div class="flex flex-col min-h-screen">
     <main class="flex-grow">
       <Navbar /> 
-      <VenueHeroSection /> 
-      <!-- Emit selected sport -->
-      <SportButtoms @sport-selected="(sport) => selectedSport = sport" />
-      <!-- Pass it to overview -->
-      <SportOverView :selectedSport="selectedSport" />
-      <SportReview /> 
-      <CourtRent /> 
+      <VenueHeroSection />
+
+      <!-- Pass selectedSportId and listen for change event -->
+      <SportButtoms
+        :selectedSportId="selectedSportId"
+        @sport-changed="handleSportChange"
+      />
+
+      <!-- Pass selectedSportId as prop -->
+      <SportOverView :sportId="selectedSportId" />
+      <SportReview :sportId="selectedSportId" />
+        <CourtRent
+          :selectedSportId="selectedSportId"
+        />
+      <router-view />
     </main>
 
     <!-- Footer sticks to bottom -->
