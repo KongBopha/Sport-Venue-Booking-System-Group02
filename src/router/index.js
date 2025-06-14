@@ -17,7 +17,7 @@ const routes = [
       },
       {
         path: 'venue', // Corrected typo here
-        component: () => import('@/views/User/Venue.vue') // Assuming correction
+        component: () => import('@/views/User/Venue.vue') 
       },
       {
         path: 'about',
