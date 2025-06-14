@@ -8,6 +8,7 @@ import SportOverView from '@/components/venue/SportOverView.vue';
 import SportReview from '@/components/venue/SportReview.vue';
 import CourtRent from '@/components/venue/CourtRent.vue';
 import VenueFooter from '@/components/venue/VenueFooter.vue';
+import { useRoute } from 'vue-router';
 
 const selectedSportId = ref(1);  // Default sport id to Football
 // Handler when a sport button is clicked, updates the sport id
@@ -31,7 +32,10 @@ function handleSportChange(sportId) {
       <!-- Pass selectedSportId as prop -->
       <SportOverView :sportId="selectedSportId" />
       <SportReview :sportId="selectedSportId" />
-      <CourtRent />
+        <CourtRent
+          :selectedSportId="selectedSportId"
+        />
+      <router-view />
     </main>
     <VenueFooter />
   </div>
