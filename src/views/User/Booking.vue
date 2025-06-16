@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
 import ballImage from '@/assets/images/ball2.jpeg'
 import footballImg from '@/assets/images/football.png'
@@ -7,9 +8,13 @@ import batmintonImg from '@/assets/images/batminton.png'
 import volleyballImg from '@/assets/images/volleyball.png'
 import Footer from '@/components/Footer.vue';
 
+const router = useRouter()
 const selectedDate = ref(null)
 const selectedTime = ref(null)
 
+const handleProceed = () => {
+  router.push('/user/checkout')
+}
 
 const currentMonth = ref('March 2025')
 const calendarDays = ref([
@@ -214,6 +219,7 @@ const isSlotAvailable = (time, day) => {
             class="bg-[#4F6DF5] hover:bg-blue-700 text-white font-bold py-2 px-8 rounded-md transition"
             :disabled="!selectedTime || !selectedSport"
             :class="{ 'opacity-50 cursor-not-allowed': !selectedTime || !selectedSport }"
+            @click="handleProceed"
           >
             Proceed
           </button>
