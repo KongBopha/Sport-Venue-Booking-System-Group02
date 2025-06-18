@@ -1,5 +1,6 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-100 relative">
+    <Navbar />
     <!-- Loading Overlay -->
     <div
       v-if="loading"
@@ -124,9 +125,14 @@
 </template>
 
 <script>
+import { UsersRoleEnum } from '@/assets/enum/userRole.enum';
+import Navbar from '@/components/Navbar.vue';
 import axios from 'axios';
 
 export default {
+  components: {
+      Navbar
+  },
   data() {
     return {
       apiUrl: import.meta.env.VITE_API_BASE_URL,
@@ -138,7 +144,7 @@ export default {
   },
   methods: {
      goToSignup() {
-        this.$router.push('/signup')
+        this.$router.push('/auth/signup')
       },
     login() {
       this.loading = true;
@@ -158,9 +164,18 @@ export default {
           localStorage.setItem('Token', token);
           localStorage.setItem('role', role);
           localStorage.setItem('user', JSON.stringify(user));
-          this.$router.push('/user/home').then(() => {
-            window.location.reload();
-          });
+          if( role === UsersRoleEnum.Admin){
+            this.$router.push('/admin').then(() => {
+              window.location.reload();
+            });
+          }
+          else if( role === UsersRoleEnum.User){
+            this.$router.push('/').then(() => {
+              window.location.reload();
+            });
+            
+          }
+
         })
         .catch((error) => {
           console.log(
@@ -179,3 +194,4 @@ export default {
   },
 };
 </script>
+@/assets/enum/userRole.enum
