@@ -87,7 +87,6 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Added</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -105,17 +104,9 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.category }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.date }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ item.updated_at }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ item.price }}</td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="['px-2 py-1 text-xs font-medium rounded-full', 
-                  item.status === 'Available' ? 'bg-green-100 text-green-800' : 
-                  item.status === 'Rented' ? 'bg-yellow-100 text-yellow-800' : 
-                  'bg-red-100 text-red-800']">
-                  {{ item.status }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 ">
                 <div class="flex items-center space-x-2">
                   <button class="p-1 hover:bg-gray-100 rounded" title="Edit">
                     <Edit class="w-4 h-4 text-blue-600" />
@@ -187,16 +178,16 @@ export default {
     return {
       // Equipment data
       equipment : ref([
-        { id: 1, name: 'Soccer Ball', category: 'Football', date: '12-12-2023', price: 25, status: 'Available' },
-        { id: 2, name: 'Table Tennis Paddle', category: 'Table Tennis', date: '15-12-2023', price: 35, status: 'Rented' },
-        { id: 3, name: 'Basketball', category: 'Basketball', date: '18-12-2023', price: 30, status: 'Available' },
-        { id: 4, name: 'Tennis Racket', category: 'Tennis', date: '20-12-2023', price: 85, status: 'Maintenance' },
-        { id: 5, name: 'Volleyball', category: 'Volleyball', date: '22-12-2023', price: 28, status: 'Available' },
-        { id: 6, name: 'Badminton Set', category: 'Badminton', date: '25-12-2023', price: 65, status: 'Rented' },
-        { id: 7, name: 'Cricket Bat', category: 'Cricket', date: '28-12-2023', price: 95, status: 'Available' },
-        { id: 8, name: 'Hockey Stick', category: 'Hockey', date: '30-12-2023', price: 75, status: 'Available' },
-        { id: 9, name: 'Golf Club', category: 'Golf', date: '02-01-2024', price: 150, status: 'Maintenance' },
-        { id: 10, name: 'Swimming Goggles', category: 'Swimming', date: '05-01-2024', price: 20, status: 'Available' }
+        { id: 1, name: 'Soccer Ball', category: 'Football', updated_at: '12-12-2023', price: 25 },
+        { id: 2, name: 'Table Tennis Paddle', category: 'Table Tennis', updated_at: '15-12-2023', price: 35 },
+        { id: 3, name: 'Basketball', category: 'Basketball', updated_at: '18-12-2023', price: 30 },
+        { id: 4, name: 'Tennis Racket', category: 'Tennis', updated_at: '20-12-2023', price: 85 },
+        { id: 5, name: 'Volleyball', category: 'Volleyball', updated_at: '22-12-2023', price: 28 },
+        { id: 6, name: 'Badminton Set', category: 'Badminton', updated_at: '25-12-2023', price: 65 },
+        { id: 7, name: 'Cricket Bat', category: 'Cricket', updated_at: '28-12-2023', price: 95 },
+        { id: 8, name: 'Hockey Stick', category: 'Hockey', updated_at: '30-12-2023', price: 75 },
+        { id: 9, name: 'Golf Club', category: 'Golf', updated_at: '02-01-2024', price: 150 },
+        { id: 10, name: 'Swimming Goggles', category: 'Swimming', updated_at: '05-01-2024', price: 20 },
       ]),
       // Search and pagination
       searchQuery : ref(''),

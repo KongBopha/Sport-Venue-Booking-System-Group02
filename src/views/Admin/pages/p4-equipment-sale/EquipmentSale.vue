@@ -37,18 +37,7 @@
           </div>
         </div>
       </div>
-      
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600">Returns</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">12</p>
-          </div>
-          <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-            <RotateCcw class="w-6 h-6 text-orange-600" />
-          </div>
-        </div>
-      </div>
+
     </div>
 
     <!-- Sales Management -->
@@ -97,7 +86,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ sale.equipment }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.quantity }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${{ sale.total }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.date }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.updated_at }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div class="flex items-center space-x-2">
                     <button class="text-blue-600 hover:text-blue-900">View</button>
@@ -175,11 +164,11 @@ export default {
   data() {
     return {
       sales : ref([
-        { id: 'SL001', customer: 'John Doe', equipment: 'Soccer Ball', quantity: 2, total: 40, date: '2024-01-15' },
-        { id: 'SL002', customer: 'Jane Smith', equipment: 'Tennis Racket', quantity: 1, total: 85, date: '2024-01-14' },
-        { id: 'SL003', customer: 'Mike Johnson', equipment: 'Basketball', quantity: 3, total: 90, date: '2024-01-14' },
-        { id: 'SL004', customer: 'Sarah Wilson', equipment: 'Swimming Goggles', quantity: 1, total: 25, date: '2024-01-13' },
-        { id: 'SL005', customer: 'Tom Brown', equipment: 'Badminton Set', quantity: 1, total: 65, date: '2024-01-12' }
+        { id: 'SL001', customer: 'John Doe', equipment: 'Soccer Ball', quantity: 2, total: 40, updated_at: '2024-01-15' },
+        { id: 'SL002', customer: 'Jane Smith', equipment: 'Tennis Racket', quantity: 1, total: 85, updated_at: '2024-01-14' },
+        { id: 'SL003', customer: 'Mike Johnson', equipment: 'Basketball', quantity: 3, total: 90, updated_at: '2024-01-14' },
+        { id: 'SL004', customer: 'Sarah Wilson', equipment: 'Swimming Goggles', quantity: 1, total: 25, updated_at: '2024-01-13' },
+        { id: 'SL005', customer: 'Tom Brown', equipment: 'Badminton Set', quantity: 1, total: 65, updated_at: '2024-01-12' }
       ]),
 
       topProducts : ref([
