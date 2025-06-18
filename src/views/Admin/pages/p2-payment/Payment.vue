@@ -37,18 +37,7 @@
           </div>
         </div>
       </div>
-      
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600">Refunds</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">$567</p>
-          </div>
-          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <RefreshCw class="w-6 h-6 text-blue-600" />
-          </div>
-        </div>
-      </div>
+
     </div>
 
     <!-- Payment Methods -->
@@ -81,19 +70,19 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
-              <tr v-for="transaction in transactions" :key="transaction.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ transaction.id }}</td>
+              <tr v-for="transaction in transactions" :key="transaction.receipt_number" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ transaction.receipt_number }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                      <span class="text-xs font-medium">{{ transaction.customer.charAt(0) }}</span>
+                      <span class="text-xs font-medium">{{ transaction.customer?.name.charAt(0) }}</span>
                     </div>
                     <div class="ml-3">
-                      <div class="text-sm font-medium text-gray-900">{{ transaction.customer }}</div>
+                      <div class="text-sm font-medium text-gray-900">{{ transaction.customer?.name }}</div>
                     </div>
                   </div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${{ transaction.amount }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${{ transaction.total_price }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.method }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <span :class="['px-2 py-1 text-xs font-medium rounded-full', 
@@ -103,7 +92,7 @@
                     {{ transaction.status }}
                   </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.date }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ transaction.updated_at }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <button class="text-blue-600 hover:text-blue-900 mr-3">View</button>
                   <button class="text-gray-600 hover:text-gray-900">
@@ -132,7 +121,7 @@
                 </div>
               </div>
               <div class="text-right">
-                <p class="font-medium text-gray-900">${{ method.amount }}</p>
+                <p class="font-medium text-gray-900">${{ method.total_price }}</p>
                 <p class="text-sm text-gray-500">{{ method.percentage }}%</p>
               </div>
             </div>
@@ -184,17 +173,72 @@ export default {
   data() {
     return {
       transactions : ref([
-          { id: 'TXN001', customer: 'John Doe', amount: 150, method: 'Credit Card', status: 'Completed', date: '2024-01-15' },
-          { id: 'TXN002', customer: 'Jane Smith', amount: 75, method: 'PayPal', status: 'Pending', date: '2024-01-14' },
-          { id: 'TXN003', customer: 'Mike Johnson', amount: 200, method: 'Bank Transfer', status: 'Failed', date: '2024-01-14' },
-          { id: 'TXN004', customer: 'Sarah Wilson', amount: 100, method: 'Credit Card', status: 'Completed', date: '2024-01-13' },
-          { id: 'TXN005', customer: 'Tom Brown', amount: 50, method: 'Cash', status: 'Completed', date: '2024-01-12' }
+          { 
+            id: 1,
+            receipt_number: 'TXN001', 
+            customer: {
+              name: 'John Doe',
+              avatar: ''
+            }, 
+            total_price: 150, 
+            method: 'Credit Card', 
+            status: 'Completed', 
+            updated_at: '2024-01-15' 
+          },
+          { 
+            id: 2,
+            receipt_number: 'TXN002', 
+            customer: {
+              name: 'Jane Smith',
+              avatar: ''
+            }, 
+            total_price: 75, 
+            method: 'PayPal', 
+            status: 'Pending', 
+            updated_at: '2024-01-14' 
+          },
+          { 
+            id: 3,
+            receipt_number: 'TXN003', 
+            customer: {
+              name: 'Mike Johnson',
+              avatar: ''
+            }, 
+            total_price: 200, 
+            method: 'Bank Transfer', 
+            status: 'Failed', 
+            updated_at: '2024-01-14' 
+          },
+          { 
+            id: 4,
+            receipt_number: 'TXN004', 
+            customer: {
+              name: 'Sarah Wilson',
+              avatar: ''
+            }, 
+            total_price: 100, 
+            method: 'Credit Card', 
+            status: 'Completed', 
+            updated_at: '2024-01-13' 
+          },
+          { 
+            id: 5,
+            receipt_number: 'TXN005', 
+            customer: {
+              name: 'Tom Brown',
+              avatar: ''
+            }, 
+            total_price: 50, 
+            method: 'Cash', 
+            status: 'Completed', 
+            updated_at: '2024-01-12' 
+          }
       ]),
       paymentMethods : ref([
-        { name: 'Credit Card', transactions: 156, amount: '45,230', percentage: 65, icon: CreditCard, bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
-        { name: 'PayPal', transactions: 89, amount: '23,450', percentage: 25, icon: Smartphone, bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
-        { name: 'Bank Transfer', transactions: 34, amount: '12,340', percentage: 8, icon: Banknote, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
-        { name: 'Cash', transactions: 12, amount: '2,890', percentage: 2, icon: DollarSign, bgColor: 'bg-gray-100', iconColor: 'text-gray-600' }
+        { name: 'Credit Card', transactions: 156, total_price: '45,230', percentage: 65, icon: CreditCard, bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
+        { name: 'PayPal', transactions: 89, total_price: '23,450', percentage: 25, icon: Smartphone, bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
+        { name: 'Bank Transfer', transactions: 34, total_price: '12,340', percentage: 8, icon: Banknote, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
+        { name: 'Cash', transactions: 12, total_price: '2,890', percentage: 2, icon: DollarSign, bgColor: 'bg-gray-100', iconColor: 'text-gray-600' }
       ])
     }
   },
