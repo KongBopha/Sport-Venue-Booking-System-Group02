@@ -1,5 +1,6 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-100 relative">
+    <Navbar />
     <!-- Loading Overlay -->
     <div
       v-if="loading"
@@ -84,9 +85,13 @@
 </template>
 
 <script>
+import Navbar from '@/components/Navbar.vue';
 import axios from 'axios';
 
 export default {
+  components: {
+      Navbar
+  },
   data() {
     return {
       apiUrl: import.meta.env.VITE_API_BASE_URL,
@@ -100,7 +105,7 @@ export default {
   },
   methods: {
      goToLogin() {
-        this.$router.push('/')
+        this.$router.push('/auth/login')
       },
     validatePasswordMatch() {
       return this.password === this.confirmPassword;
@@ -131,7 +136,7 @@ export default {
           localStorage.setItem('Token', token);
           localStorage.setItem('role', role);
           localStorage.setItem('user', JSON.stringify(user));
-          this.$router.push('/user/home').then(() => {
+          this.$router.push('/').then(() => {
             window.location.reload();
           });
         })
