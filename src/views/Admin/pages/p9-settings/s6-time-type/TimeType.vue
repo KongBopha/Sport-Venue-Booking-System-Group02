@@ -88,52 +88,75 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { Clock, Plus } from 'lucide-vue-next'
+import  AdminTimeTypeService  from './service';
+export default {
+  name: 'Time-Type',
+  data() {
+    return {
+    timeTypes : ref([
+      { 
+        id: 1, 
+        name: 'Off-Peak', 
+        timeRange: '6:00 AM - 9:00 AM',
+        priceMultiplier: 0.8,
+        duration: 1,
+        status: 'Active',
+        bgColor: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      },
+      { 
+        id: 2, 
+        name: 'Regular', 
+        timeRange: '9:00 AM - 5:00 PM',
+        priceMultiplier: 1.0,
+        duration: 1,
+        status: 'Active',
+        bgColor: 'bg-green-100',
+        iconColor: 'text-green-600'
+      },
+      { 
+        id: 3, 
+        name: 'Peak', 
+        timeRange: '5:00 PM - 9:00 PM',
+        priceMultiplier: 1.5,
+        duration: 1,
+        status: 'Active',
+        bgColor: 'bg-yellow-100',
+        iconColor: 'text-yellow-600'
+      },
+      { 
+        id: 4, 
+        name: 'Premium', 
+        timeRange: '9:00 PM - 11:00 PM',
+        priceMultiplier: 2.0,
+        duration: 1,
+        status: 'Active',
+        bgColor: 'bg-red-100',
+        iconColor: 'text-red-600'
+      }
+    ])
 
-const timeTypes = ref([
-  { 
-    id: 1, 
-    name: 'Off-Peak', 
-    timeRange: '6:00 AM - 9:00 AM',
-    priceMultiplier: 0.8,
-    duration: 1,
-    status: 'Active',
-    bgColor: 'bg-blue-100',
-    iconColor: 'text-blue-600'
+
+    }
   },
-  { 
-    id: 2, 
-    name: 'Regular', 
-    timeRange: '9:00 AM - 5:00 PM',
-    priceMultiplier: 1.0,
-    duration: 1,
-    status: 'Active',
-    bgColor: 'bg-green-100',
-    iconColor: 'text-green-600'
+  async created() {
+    await this.listing();
   },
-  { 
-    id: 3, 
-    name: 'Peak', 
-    timeRange: '5:00 PM - 9:00 PM',
-    priceMultiplier: 1.5,
-    duration: 1,
-    status: 'Active',
-    bgColor: 'bg-yellow-100',
-    iconColor: 'text-yellow-600'
-  },
-  { 
-    id: 4, 
-    name: 'Premium', 
-    timeRange: '9:00 PM - 11:00 PM',
-    priceMultiplier: 2.0,
-    duration: 1,
-    status: 'Active',
-    bgColor: 'bg-red-100',
-    iconColor: 'text-red-600'
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminTimeTypeService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
   }
-])
+
+}
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 

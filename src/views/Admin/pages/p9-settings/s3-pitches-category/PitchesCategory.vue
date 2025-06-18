@@ -46,54 +46,76 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { Plus, MoreVertical, Zap, Users, Waves, Target } from 'lucide-vue-next'
-
-const categories = ref([
-  { 
-    id: 1, 
-    name: 'Football', 
-    pitchCount: 3, 
-    basePrice: 150, 
-    maxCapacity: 22, 
-    duration: 2,
-    icon: Zap,
-    bgColor: 'bg-green-100',
-    iconColor: 'text-green-600'
+import  AdminPitchCategoryService  from './service';
+export default {
+  name: 'Pitch-Category',
+  data() {
+    return {
+      categories : ref([
+        { 
+          id: 1, 
+          name: 'Football', 
+          pitchCount: 3, 
+          basePrice: 150, 
+          maxCapacity: 22, 
+          duration: 2,
+          icon: Zap,
+          bgColor: 'bg-green-100',
+          iconColor: 'text-green-600'
+        },
+        { 
+          id: 2, 
+          name: 'Basketball', 
+          pitchCount: 2, 
+          basePrice: 100, 
+          maxCapacity: 10, 
+          duration: 1,
+          icon: Target,
+          bgColor: 'bg-orange-100',
+          iconColor: 'text-orange-600'
+        },
+        { 
+          id: 3, 
+          name: 'Tennis', 
+          pitchCount: 4, 
+          basePrice: 75, 
+          maxCapacity: 4, 
+          duration: 1,
+          icon: Users,
+          bgColor: 'bg-blue-100',
+          iconColor: 'text-blue-600'
+        },
+        { 
+          id: 4, 
+          name: 'Swimming', 
+          pitchCount: 1, 
+          basePrice: 200, 
+          maxCapacity: 50, 
+          duration: 2,
+          icon: Waves,
+          bgColor: 'bg-cyan-100',
+          iconColor: 'text-cyan-600'
+        }
+      ])
+    }
   },
-  { 
-    id: 2, 
-    name: 'Basketball', 
-    pitchCount: 2, 
-    basePrice: 100, 
-    maxCapacity: 10, 
-    duration: 1,
-    icon: Target,
-    bgColor: 'bg-orange-100',
-    iconColor: 'text-orange-600'
+  async created() {
+    await this.listing();
   },
-  { 
-    id: 3, 
-    name: 'Tennis', 
-    pitchCount: 4, 
-    basePrice: 75, 
-    maxCapacity: 4, 
-    duration: 1,
-    icon: Users,
-    bgColor: 'bg-blue-100',
-    iconColor: 'text-blue-600'
-  },
-  { 
-    id: 4, 
-    name: 'Swimming', 
-    pitchCount: 1, 
-    basePrice: 200, 
-    maxCapacity: 50, 
-    duration: 2,
-    icon: Waves,
-    bgColor: 'bg-cyan-100',
-    iconColor: 'text-cyan-600'
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminPitchCategoryService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
   }
-])
+
+}
+
 </script>

@@ -47,13 +47,36 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { UserX, Plus } from 'lucide-vue-next'
+import  AdminBlackListService  from './service';
+export default {
+  name: 'BlackList',
+  data() {
+    return {
+      blacklistItems : ref([
+        { id: 1, user: 'John Troublemaker', email: 'john.trouble@email.com', reason: 'Repeated violations', dateAdded: '2024-01-10', addedBy: 'Admin' },
+        { id: 2, user: 'Jane Spammer', email: 'jane.spam@email.com', reason: 'Spam activities', dateAdded: '2024-01-08', addedBy: 'Manager' },
+        { id: 3, user: 'Mike Abuser', email: 'mike.abuse@email.com', reason: 'Abusive behavior', dateAdded: '2024-01-05', addedBy: 'Admin' }
+      ])
+    }
+  },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminBlackListService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
 
-const blacklistItems = ref([
-  { id: 1, user: 'John Troublemaker', email: 'john.trouble@email.com', reason: 'Repeated violations', dateAdded: '2024-01-10', addedBy: 'Admin' },
-  { id: 2, user: 'Jane Spammer', email: 'jane.spam@email.com', reason: 'Spam activities', dateAdded: '2024-01-08', addedBy: 'Manager' },
-  { id: 3, user: 'Mike Abuser', email: 'mike.abuse@email.com', reason: 'Abusive behavior', dateAdded: '2024-01-05', addedBy: 'Admin' }
-])
+}
+
+
 </script>

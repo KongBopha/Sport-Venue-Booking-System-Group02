@@ -115,15 +115,37 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { Users, UserCheck, UserPlus, UserX, Filter, Plus } from 'lucide-vue-next'
+import  AdminUserService  from './service';
+export default {
+  name: 'User',
+  data() {
+    return {
+      users : ref([
+        { id: 1, name: 'John Doe', email: 'john@example.com', phone: '+1 234 567 8900', role: 'Customer', status: 'Active', lastLogin: '2024-01-15' },
+        { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '+1 234 567 8901', role: 'Admin', status: 'Active', lastLogin: '2024-01-14' },
+        { id: 3, name: 'Mike Johnson', email: 'mike@example.com', phone: '+1 234 567 8902', role: 'Customer', status: 'Inactive', lastLogin: '2024-01-10' },
+        { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com', phone: '+1 234 567 8903', role: 'Manager', status: 'Active', lastLogin: '2024-01-15' },
+        { id: 5, name: 'Tom Brown', email: 'tom@example.com', phone: '+1 234 567 8904', role: 'Customer', status: 'Active', lastLogin: '2024-01-13' }
+      ])
+    }
+  },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminUserService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
 
-const users = ref([
-  { id: 1, name: 'John Doe', email: 'john@example.com', phone: '+1 234 567 8900', role: 'Customer', status: 'Active', lastLogin: '2024-01-15' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '+1 234 567 8901', role: 'Admin', status: 'Active', lastLogin: '2024-01-14' },
-  { id: 3, name: 'Mike Johnson', email: 'mike@example.com', phone: '+1 234 567 8902', role: 'Customer', status: 'Inactive', lastLogin: '2024-01-10' },
-  { id: 4, name: 'Sarah Wilson', email: 'sarah@example.com', phone: '+1 234 567 8903', role: 'Manager', status: 'Active', lastLogin: '2024-01-15' },
-  { id: 5, name: 'Tom Brown', email: 'tom@example.com', phone: '+1 234 567 8904', role: 'Customer', status: 'Active', lastLogin: '2024-01-13' }
-])
+}
+
 </script>
