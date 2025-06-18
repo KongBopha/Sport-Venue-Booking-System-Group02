@@ -56,14 +56,37 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { MapPin, Plus } from 'lucide-vue-next'
+import  AdminPitchService  from './service';
+export default {
+  name: 'Pitch',
+  data() {
+    return {
+      pitches : ref([
+        { id: 1, name: 'Football Pitch A', location: 'North Wing', category: 'Football', capacity: 22, price: 150, status: 'Available' },
+        { id: 2, name: 'Tennis Court 1', location: 'East Wing', category: 'Tennis', capacity: 4, price: 75, status: 'Available' },
+        { id: 3, name: 'Basketball Court', location: 'South Wing', category: 'Basketball', capacity: 10, price: 100, status: 'Maintenance' },
+        { id: 4, name: 'Swimming Pool', location: 'West Wing', category: 'Swimming', capacity: 50, price: 200, status: 'Available' }
+      ])
+    }
+  },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminPitchService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
 
-const pitches = ref([
-  { id: 1, name: 'Football Pitch A', location: 'North Wing', category: 'Football', capacity: 22, price: 150, status: 'Available' },
-  { id: 2, name: 'Tennis Court 1', location: 'East Wing', category: 'Tennis', capacity: 4, price: 75, status: 'Available' },
-  { id: 3, name: 'Basketball Court', location: 'South Wing', category: 'Basketball', capacity: 10, price: 100, status: 'Maintenance' },
-  { id: 4, name: 'Swimming Pool', location: 'West Wing', category: 'Swimming', capacity: 50, price: 200, status: 'Available' }
-])
+}
+
+
 </script>

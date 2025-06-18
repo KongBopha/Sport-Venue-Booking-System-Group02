@@ -121,15 +121,38 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { Building, FileText, DollarSign, AlertTriangle, Filter, Plus } from 'lucide-vue-next'
+import  AdminSponsorService  from './service';
+export default {
+  name: 'Sponsor',
+  data() {
+    return {
+      sponsors : ref([
+        { id: 1, company: 'Nike Sports', industry: 'Sportswear', contact: 'John Smith', email: 'john@nike.com', value: '45,000', startDate: '2024-01-01', endDate: '2024-12-31', status: 'Active' },
+        { id: 2, company: 'Adidas', industry: 'Sportswear', contact: 'Jane Doe', email: 'jane@adidas.com', value: '55,000', startDate: '2024-02-01', endDate: '2025-01-31', status: 'Active' },
+        { id: 3, company: 'Puma', industry: 'Sportswear', contact: 'Mike Johnson', email: 'mike@puma.com', value: '25,000', startDate: '2024-03-01', endDate: '2024-08-31', status: 'Expired' },
+        { id: 4, company: 'Under Armour', industry: 'Sportswear', contact: 'Sarah Wilson', email: 'sarah@ua.com', value: '35,000', startDate: '2024-06-01', endDate: '2025-05-31', status: 'Pending' },
+        { id: 5, company: 'Reebok', industry: 'Sportswear', contact: 'Tom Brown', email: 'tom@reebok.com', value: '30,000', startDate: '2024-04-01', endDate: '2024-12-31', status: 'Active' }
+      ])
+    }
+  },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminSponsorService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
 
-const sponsors = ref([
-  { id: 1, company: 'Nike Sports', industry: 'Sportswear', contact: 'John Smith', email: 'john@nike.com', value: '45,000', startDate: '2024-01-01', endDate: '2024-12-31', status: 'Active' },
-  { id: 2, company: 'Adidas', industry: 'Sportswear', contact: 'Jane Doe', email: 'jane@adidas.com', value: '55,000', startDate: '2024-02-01', endDate: '2025-01-31', status: 'Active' },
-  { id: 3, company: 'Puma', industry: 'Sportswear', contact: 'Mike Johnson', email: 'mike@puma.com', value: '25,000', startDate: '2024-03-01', endDate: '2024-08-31', status: 'Expired' },
-  { id: 4, company: 'Under Armour', industry: 'Sportswear', contact: 'Sarah Wilson', email: 'sarah@ua.com', value: '35,000', startDate: '2024-06-01', endDate: '2025-05-31', status: 'Pending' },
-  { id: 5, company: 'Reebok', industry: 'Sportswear', contact: 'Tom Brown', email: 'tom@reebok.com', value: '30,000', startDate: '2024-04-01', endDate: '2024-12-31', status: 'Active' }
-])
+}
+
+
 </script>

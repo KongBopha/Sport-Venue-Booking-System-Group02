@@ -43,75 +43,98 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { Plus, Zap, Target, Users, Waves, Trophy, Shield } from 'lucide-vue-next'
+import  AdminSportService  from './service';
+export default {
+  name: 'Sport',
+  data() {
+    return {
+      sports : ref([
+        { 
+          id: 1, 
+          name: 'Football', 
+          teams: 12, 
+          players: 264, 
+          equipment: 45,
+          status: 'Active',
+          icon: Zap,
+          bgColor: 'bg-green-100',
+          iconColor: 'text-green-600'
+        },
+        { 
+          id: 2, 
+          name: 'Basketball', 
+          teams: 8, 
+          players: 120, 
+          equipment: 32,
+          status: 'Active',
+          icon: Target,
+          bgColor: 'bg-orange-100',
+          iconColor: 'text-orange-600'
+        },
+        { 
+          id: 3, 
+          name: 'Tennis', 
+          teams: 6, 
+          players: 48, 
+          equipment: 28,
+          status: 'Active',
+          icon: Users,
+          bgColor: 'bg-blue-100',
+          iconColor: 'text-blue-600'
+        },
+        { 
+          id: 4, 
+          name: 'Swimming', 
+          teams: 4, 
+          players: 80, 
+          equipment: 15,
+          status: 'Active',
+          icon: Waves,
+          bgColor: 'bg-cyan-100',
+          iconColor: 'text-cyan-600'
+        },
+        { 
+          id: 5, 
+          name: 'Cricket', 
+          teams: 5, 
+          players: 110, 
+          equipment: 38,
+          status: 'Inactive',
+          icon: Trophy,
+          bgColor: 'bg-purple-100',
+          iconColor: 'text-purple-600'
+        },
+        { 
+          id: 6, 
+          name: 'Hockey', 
+          teams: 3, 
+          players: 66, 
+          equipment: 22,
+          status: 'Active',
+          icon: Shield,
+        }
+      ])
 
-const sports = ref([
-  { 
-    id: 1, 
-    name: 'Football', 
-    teams: 12, 
-    players: 264, 
-    equipment: 45,
-    status: 'Active',
-    icon: Zap,
-    bgColor: 'bg-green-100',
-    iconColor: 'text-green-600'
+    }
   },
-  { 
-    id: 2, 
-    name: 'Basketball', 
-    teams: 8, 
-    players: 120, 
-    equipment: 32,
-    status: 'Active',
-    icon: Target,
-    bgColor: 'bg-orange-100',
-    iconColor: 'text-orange-600'
+  async created() {
+    await this.listing();
   },
-  { 
-    id: 3, 
-    name: 'Tennis', 
-    teams: 6, 
-    players: 48, 
-    equipment: 28,
-    status: 'Active',
-    icon: Users,
-    bgColor: 'bg-blue-100',
-    iconColor: 'text-blue-600'
-  },
-  { 
-    id: 4, 
-    name: 'Swimming', 
-    teams: 4, 
-    players: 80, 
-    equipment: 15,
-    status: 'Active',
-    icon: Waves,
-    bgColor: 'bg-cyan-100',
-    iconColor: 'text-cyan-600'
-  },
-  { 
-    id: 5, 
-    name: 'Cricket', 
-    teams: 5, 
-    players: 110, 
-    equipment: 38,
-    status: 'Inactive',
-    icon: Trophy,
-    bgColor: 'bg-purple-100',
-    iconColor: 'text-purple-600'
-  },
-  { 
-    id: 6, 
-    name: 'Hockey', 
-    teams: 3, 
-    players: 66, 
-    equipment: 22,
-    status: 'Active',
-    icon: Shield,
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminSportService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
   }
-])
+
+}
+
 
 </script>

@@ -80,48 +80,72 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { Calendar, Plus } from 'lucide-vue-next'
+import  AdminDateTypeService  from './service';
+export default {
+  name: 'Date-Type',
+  data() {
+    return {
+    dateTypes : ref([
+      { 
+        id: 1, 
+        name: 'Weekday', 
+        description: 'Monday to Friday regular pricing',
+        priceMultiplier: 1.0,
+        status: 'Active',
+        bgColor: 'bg-blue-100',
+        iconColor: 'text-blue-600'
+      },
+      { 
+        id: 2, 
+        name: 'Weekend', 
+        description: 'Saturday and Sunday premium pricing',
+        priceMultiplier: 1.5,
+        status: 'Active',
+        bgColor: 'bg-green-100',
+        iconColor: 'text-green-600'
+      },
+      { 
+        id: 3, 
+        name: 'Holiday', 
+        description: 'Public holidays special pricing',
+        priceMultiplier: 2.0,
+        status: 'Active',
+        bgColor: 'bg-purple-100',
+        iconColor: 'text-purple-600'
+      },
+      { 
+        id: 4, 
+        name: 'Off-Season', 
+        description: 'Discounted pricing during low season',
+        priceMultiplier: 0.8,
+        status: 'Inactive',
+        bgColor: 'bg-gray-100',
+        iconColor: 'text-gray-600'
+      }
+    ])
 
-const dateTypes = ref([
-  { 
-    id: 1, 
-    name: 'Weekday', 
-    description: 'Monday to Friday regular pricing',
-    priceMultiplier: 1.0,
-    status: 'Active',
-    bgColor: 'bg-blue-100',
-    iconColor: 'text-blue-600'
+    }
   },
-  { 
-    id: 2, 
-    name: 'Weekend', 
-    description: 'Saturday and Sunday premium pricing',
-    priceMultiplier: 1.5,
-    status: 'Active',
-    bgColor: 'bg-green-100',
-    iconColor: 'text-green-600'
+  async created() {
+    await this.listing();
   },
-  { 
-    id: 3, 
-    name: 'Holiday', 
-    description: 'Public holidays special pricing',
-    priceMultiplier: 2.0,
-    status: 'Active',
-    bgColor: 'bg-purple-100',
-    iconColor: 'text-purple-600'
-  },
-  { 
-    id: 4, 
-    name: 'Off-Season', 
-    description: 'Discounted pricing during low season',
-    priceMultiplier: 0.8,
-    status: 'Inactive',
-    bgColor: 'bg-gray-100',
-    iconColor: 'text-gray-600'
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminDateTypeService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
   }
-])
+
+}
+
+
 
 const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 </script>

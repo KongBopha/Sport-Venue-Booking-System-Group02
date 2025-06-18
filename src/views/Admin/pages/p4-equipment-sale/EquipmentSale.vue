@@ -157,7 +157,7 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { 
   ShoppingBag, 
@@ -169,19 +169,41 @@ import {
   FileText,
   BarChart3
 } from 'lucide-vue-next'
+import  AdminEquimentSaleService  from './service';
+export default {
+  name: 'Equiment-Sale',
+  data() {
+    return {
+      sales : ref([
+        { id: 'SL001', customer: 'John Doe', equipment: 'Soccer Ball', quantity: 2, total: 40, date: '2024-01-15' },
+        { id: 'SL002', customer: 'Jane Smith', equipment: 'Tennis Racket', quantity: 1, total: 85, date: '2024-01-14' },
+        { id: 'SL003', customer: 'Mike Johnson', equipment: 'Basketball', quantity: 3, total: 90, date: '2024-01-14' },
+        { id: 'SL004', customer: 'Sarah Wilson', equipment: 'Swimming Goggles', quantity: 1, total: 25, date: '2024-01-13' },
+        { id: 'SL005', customer: 'Tom Brown', equipment: 'Badminton Set', quantity: 1, total: 65, date: '2024-01-12' }
+      ]),
 
-const sales = ref([
-  { id: 'SL001', customer: 'John Doe', equipment: 'Soccer Ball', quantity: 2, total: 40, date: '2024-01-15' },
-  { id: 'SL002', customer: 'Jane Smith', equipment: 'Tennis Racket', quantity: 1, total: 85, date: '2024-01-14' },
-  { id: 'SL003', customer: 'Mike Johnson', equipment: 'Basketball', quantity: 3, total: 90, date: '2024-01-14' },
-  { id: 'SL004', customer: 'Sarah Wilson', equipment: 'Swimming Goggles', quantity: 1, total: 25, date: '2024-01-13' },
-  { id: 'SL005', customer: 'Tom Brown', equipment: 'Badminton Set', quantity: 1, total: 65, date: '2024-01-12' }
-])
+      topProducts : ref([
+        { id: 1, name: 'Soccer Ball', sold: 45, revenue: '1,800', percentage: 90 },
+        { id: 2, name: 'Tennis Racket', sold: 32, revenue: '2,720', percentage: 75 },
+        { id: 3, name: 'Basketball', sold: 28, revenue: '840', percentage: 60 },
+        { id: 4, name: 'Swimming Goggles', sold: 24, revenue: '600', percentage: 50 }
+      ])
+    }
+  },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminEquimentSaleService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
 
-const topProducts = ref([
-  { id: 1, name: 'Soccer Ball', sold: 45, revenue: '1,800', percentage: 90 },
-  { id: 2, name: 'Tennis Racket', sold: 32, revenue: '2,720', percentage: 75 },
-  { id: 3, name: 'Basketball', sold: 28, revenue: '840', percentage: 60 },
-  { id: 4, name: 'Swimming Goggles', sold: 24, revenue: '600', percentage: 50 }
-])
+}
+
 </script>

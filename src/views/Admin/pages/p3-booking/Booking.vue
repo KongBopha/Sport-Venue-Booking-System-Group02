@@ -156,7 +156,7 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { 
   Calendar, 
@@ -166,26 +166,45 @@ import {
   Filter, 
   Plus
 } from 'lucide-vue-next'
+import  AdminBookingService  from './service';
+export default {
+  name: 'Booking',
+  data() {
+    return {
+      bookings : ref([
+        { id: 'BK001', customer: 'John Doe', venue: 'Tennis Court A', datetime: '2024-01-15 10:00', status: 'Confirmed', amount: 150 },
+        { id: 'BK002', customer: 'Jane Smith', venue: 'Basketball Court', datetime: '2024-01-15 14:00', status: 'Pending', amount: 75 },
+        { id: 'BK003', customer: 'Mike Johnson', venue: 'Swimming Pool', datetime: '2024-01-16 09:00', status: 'Confirmed', amount: 200 },
+        { id: 'BK004', customer: 'Sarah Wilson', venue: 'Football Field', datetime: '2024-01-16 16:00', status: 'Cancelled', amount: 100 },
+        { id: 'BK005', customer: 'Tom Brown', venue: 'Badminton Court', datetime: '2024-01-17 11:00', status: 'Confirmed', amount: 50 }
+      ]),
+      todaySchedule : ref([
+        { id: 1, venue: 'Tennis Court A', customer: 'John Doe', time: '10:00 AM', duration: '2 hours' },
+        { id: 2, venue: 'Basketball Court', customer: 'Jane Smith', time: '2:00 PM', duration: '1 hour' },
+        { id: 3, venue: 'Swimming Pool', customer: 'Mike Johnson', time: '4:00 PM', duration: '1.5 hours' },
+        { id: 4, venue: 'Football Field', customer: 'Sarah Wilson', time: '6:00 PM', duration: '2 hours' }
+      ]),
+      venueAvailability : ref([
+        { name: 'Tennis Court A', nextAvailable: 'Available at 12:00 PM', status: 'Busy', statusColor: 'bg-yellow-100 text-yellow-800' },
+        { name: 'Basketball Court', nextAvailable: 'Available now', status: 'Available', statusColor: 'bg-green-100 text-green-800' },
+        { name: 'Swimming Pool', nextAvailable: 'Available at 5:30 PM', status: 'Busy', statusColor: 'bg-yellow-100 text-yellow-800' },
+        { name: 'Football Field', nextAvailable: 'Maintenance', status: 'Unavailable', statusColor: 'bg-red-100 text-red-800' }
+      ])
+    }
+  },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminBookingService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
 
-const bookings = ref([
-  { id: 'BK001', customer: 'John Doe', venue: 'Tennis Court A', datetime: '2024-01-15 10:00', status: 'Confirmed', amount: 150 },
-  { id: 'BK002', customer: 'Jane Smith', venue: 'Basketball Court', datetime: '2024-01-15 14:00', status: 'Pending', amount: 75 },
-  { id: 'BK003', customer: 'Mike Johnson', venue: 'Swimming Pool', datetime: '2024-01-16 09:00', status: 'Confirmed', amount: 200 },
-  { id: 'BK004', customer: 'Sarah Wilson', venue: 'Football Field', datetime: '2024-01-16 16:00', status: 'Cancelled', amount: 100 },
-  { id: 'BK005', customer: 'Tom Brown', venue: 'Badminton Court', datetime: '2024-01-17 11:00', status: 'Confirmed', amount: 50 }
-])
-
-const todaySchedule = ref([
-  { id: 1, venue: 'Tennis Court A', customer: 'John Doe', time: '10:00 AM', duration: '2 hours' },
-  { id: 2, venue: 'Basketball Court', customer: 'Jane Smith', time: '2:00 PM', duration: '1 hour' },
-  { id: 3, venue: 'Swimming Pool', customer: 'Mike Johnson', time: '4:00 PM', duration: '1.5 hours' },
-  { id: 4, venue: 'Football Field', customer: 'Sarah Wilson', time: '6:00 PM', duration: '2 hours' }
-])
-
-const venueAvailability = ref([
-  { name: 'Tennis Court A', nextAvailable: 'Available at 12:00 PM', status: 'Busy', statusColor: 'bg-yellow-100 text-yellow-800' },
-  { name: 'Basketball Court', nextAvailable: 'Available now', status: 'Available', statusColor: 'bg-green-100 text-green-800' },
-  { name: 'Swimming Pool', nextAvailable: 'Available at 5:30 PM', status: 'Busy', statusColor: 'bg-yellow-100 text-yellow-800' },
-  { name: 'Football Field', nextAvailable: 'Maintenance', status: 'Unavailable', statusColor: 'bg-red-100 text-red-800' }
-])
+}
 </script>

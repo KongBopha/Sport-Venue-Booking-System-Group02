@@ -161,7 +161,7 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref } from 'vue'
 import { 
   DollarSign, 
@@ -178,19 +178,39 @@ import {
   FileText,
   Settings
 } from 'lucide-vue-next'
+import  AdminPaymentService  from './service';
+export default {
+  name: 'Payment',
+  data() {
+    return {
+      transactions : ref([
+          { id: 'TXN001', customer: 'John Doe', amount: 150, method: 'Credit Card', status: 'Completed', date: '2024-01-15' },
+          { id: 'TXN002', customer: 'Jane Smith', amount: 75, method: 'PayPal', status: 'Pending', date: '2024-01-14' },
+          { id: 'TXN003', customer: 'Mike Johnson', amount: 200, method: 'Bank Transfer', status: 'Failed', date: '2024-01-14' },
+          { id: 'TXN004', customer: 'Sarah Wilson', amount: 100, method: 'Credit Card', status: 'Completed', date: '2024-01-13' },
+          { id: 'TXN005', customer: 'Tom Brown', amount: 50, method: 'Cash', status: 'Completed', date: '2024-01-12' }
+      ]),
+      paymentMethods : ref([
+        { name: 'Credit Card', transactions: 156, amount: '45,230', percentage: 65, icon: CreditCard, bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
+        { name: 'PayPal', transactions: 89, amount: '23,450', percentage: 25, icon: Smartphone, bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
+        { name: 'Bank Transfer', transactions: 34, amount: '12,340', percentage: 8, icon: Banknote, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
+        { name: 'Cash', transactions: 12, amount: '2,890', percentage: 2, icon: DollarSign, bgColor: 'bg-gray-100', iconColor: 'text-gray-600' }
+      ])
+    }
+  },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+    async listing() {
+      try {
+        const response = await AdminPaymentService.listing();
+        console.log(response);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+  }
 
-const transactions = ref([
-  { id: 'TXN001', customer: 'John Doe', amount: 150, method: 'Credit Card', status: 'Completed', date: '2024-01-15' },
-  { id: 'TXN002', customer: 'Jane Smith', amount: 75, method: 'PayPal', status: 'Pending', date: '2024-01-14' },
-  { id: 'TXN003', customer: 'Mike Johnson', amount: 200, method: 'Bank Transfer', status: 'Failed', date: '2024-01-14' },
-  { id: 'TXN004', customer: 'Sarah Wilson', amount: 100, method: 'Credit Card', status: 'Completed', date: '2024-01-13' },
-  { id: 'TXN005', customer: 'Tom Brown', amount: 50, method: 'Cash', status: 'Completed', date: '2024-01-12' }
-])
-
-const paymentMethods = ref([
-  { name: 'Credit Card', transactions: 156, amount: '45,230', percentage: 65, icon: CreditCard, bgColor: 'bg-blue-100', iconColor: 'text-blue-600' },
-  { name: 'PayPal', transactions: 89, amount: '23,450', percentage: 25, icon: Smartphone, bgColor: 'bg-purple-100', iconColor: 'text-purple-600' },
-  { name: 'Bank Transfer', transactions: 34, amount: '12,340', percentage: 8, icon: Banknote, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
-  { name: 'Cash', transactions: 12, amount: '2,890', percentage: 2, icon: DollarSign, bgColor: 'bg-gray-100', iconColor: 'text-gray-600' }
-])
+}
 </script>
