@@ -277,9 +277,7 @@ export default {
         this.total_inactive_users = response.data.total_inactive_users;
         this.users = response.data.users || [];
         this.pagination = response.pagination || this.pagination;
-        
-        // Calculate stats
-        this.calculateStats()
+
       } catch (error) {
         console.error('Error loading users:', error)
         this.$toast?.error('Failed to load users')
@@ -297,19 +295,6 @@ export default {
       } catch (error) {
         console.error('Error loading roles:', error)
       }
-    },
-    
-    calculateStats() {
-      this.stats.total = this.pagination.total
-      this.stats.active = this.users.filter(user => user.is_active === 1).length
-      this.stats.inactive = this.users.filter(user => user.is_active === 0).length
-      
-      // Calculate new users this month (simplified)
-      const thisMonth = new Date().getMonth()
-      this.stats.newThisMonth = this.users.filter(user => {
-        const userMonth = new Date(user.created_at).getMonth()
-        return userMonth === thisMonth
-      }).length
     },
     
     // Filter methods
