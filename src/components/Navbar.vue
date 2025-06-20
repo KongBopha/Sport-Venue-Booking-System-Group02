@@ -63,7 +63,7 @@
         <li v-if="isAuthenticated">
           <router-link
             to="/account/profile"
-            class="nav-link"
+            class="hover:text-blue-500"
             :class="{ 'active-link': isActive('/account/profile') }"
           >
             <i class="bi bi-person-circle"></i> Profile
@@ -72,7 +72,7 @@
         <li v-if="!isAuthenticated">
           <router-link
             to="/auth/login"
-            class="nav-link"
+            class="hover:text-blue-500"
             :class="{ 'active-link': isActive('/auth/login') }"
           >
             Login
@@ -81,7 +81,7 @@
         <li v-if="!isAuthenticated">
           <router-link
             to="/auth/signup"
-            class="nav-link"
+            class="hover:text-blue-500"
             :class="{ 'active-link': isActive('/auth/signup') }"
           >
             Sign Up
@@ -91,9 +91,18 @@
           <a
             href="#"
             @click.prevent="logout"
-            class="nav-link"
+            class="hover:text-blue-500"
           >
             Logout
+          </a>
+        </li>
+        <li v-if="isAdmin">
+          <a
+            href="#"
+            @click.prevent="navigateTo('/admin')"
+            class="hover:text-blue-500"
+          >
+            Back to Admin
           </a>
         </li>
       </ul>
@@ -104,21 +113,20 @@
 
 <script >
 import { useRouter } from 'vue-router'
-const router = useRouter()
-
-const navigateTo = (path) => {
-  router.push(path)
-}
 
 export default {
   name: 'Navbar',
   data() {
     return {
+      router: useRouter(),
       isAuthenticated: !!localStorage.getItem('Token'),
       isAdmin: localStorage.getItem('role') === 'Admin',
     };
   },
   methods: {
+    navigateTo(path) {
+      this.$router.push(path)
+    },
     navigateAndReload(route) {
       // Navigate to the specified route
       this.$router.push(route).then(() => {
