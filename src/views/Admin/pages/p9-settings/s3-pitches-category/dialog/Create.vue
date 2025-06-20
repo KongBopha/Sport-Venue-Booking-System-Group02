@@ -72,18 +72,36 @@ export default {
       }
     },
    async submit() {
-    try {
-        const newCategory = await AdminPitchCategoryService.create(this.form);
-        this.$emit('created', newCategory);
-        this.$emit('cancel');
-        setTimeout(() => {
-        alert('✅ Category created successfully!');
-        }, 100);
-    } catch (error) {
-        console.error('Create Error:', error);
-        alert('❌ Failed to create category');
-    }
-    }
+        try {
+            const response = await AdminPitchCategoryService.create(this.form);
+
+            // 🔁 Transform the response to match your component's expected structure
+            const newCategory = {
+            id: response.id,
+            name: response.name,
+            basePrice: response.price,
+            maxCapacity: response.required_players,
+            volume: response.volume,
+            pitchCount: 0, // default since it's not returned
+            // Optional:
+            editName: response.name,
+            editPrice: response.price,
+            editCapacity: response.required_players,
+            editVolume: response.volume
+            };
+
+            this.$emit('created', newCategory);
+            this.$emit('cancel');
+
+            setTimeout(() => {
+            alert('✅ Category created successfully!');
+            }, 100);
+        } catch (error) {
+            console.error('Create Error:', error);
+            alert('❌ Failed to create category');
+        }
+        }
+
 
   }
 };
