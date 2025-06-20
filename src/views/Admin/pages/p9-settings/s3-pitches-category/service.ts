@@ -42,6 +42,40 @@ export class AdminPitchCategoryService {
         throw error;
       });
   }
+  create(data) {
+    return this.http.post('admin/setting/pitches-categories', data)
+      .then(response => response.data)
+      .catch(this.handleError);
+  }
+
+  update(id, data) {
+    return this.http.post(`admin/setting/pitches-categories/${id}`, data)
+      .then(response => response.data)
+      .catch(this.handleError);
+  }
+
+  delete(id) {
+    return this.http.delete(`admin/setting/pitches-categories/${id}`)
+      .then(response => response.data)
+      .catch(this.handleError);
+  }
+
+  setupData() {
+    return this.http.get('admin/setting/pitches-categories/setup')
+      .then(response => response.data)
+      .catch(this.handleError);
+  }
+
+  private handleError(error) {
+    if (error.response) {
+      console.error('Response Error:', error.response.status, error.response.data);
+    } else if (error.request) {
+      console.error('No Response:', error.request);
+    } else {
+      console.error('Request Error:', error.message);
+    }
+    throw error;
+  }
 }
 
 export default new AdminPitchCategoryService();
