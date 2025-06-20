@@ -74,7 +74,7 @@ export default {
    async submit() {
         try {
             const response = await AdminPitchCategoryService.create(this.form);
-
+                // new fixed
             // 🔁 Transform the response to match your component's expected structure
             const newCategory = {
             id: response.id,
