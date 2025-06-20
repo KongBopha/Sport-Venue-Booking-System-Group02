@@ -1,8 +1,8 @@
 import axios from 'axios';
-
+const BASE_URL = import.meta.env.VITE_FILE_BASE_URL;
 export class AdminPitchCategoryService {
   private apiUrl: string = import.meta.env.VITE_API_BASE_URL;
-
+  
   private http = axios.create({
     baseURL: this.apiUrl,
     headers: {
@@ -66,16 +66,29 @@ export class AdminPitchCategoryService {
       .catch(this.handleError);
   }
 
-  private handleError(error) {
-    if (error.response) {
-      console.error('Response Error:', error.response.status, error.response.data);
-    } else if (error.request) {
-      console.error('No Response:', error.request);
-    } else {
-      console.error('Request Error:', error.message);
+    private handleError(error) {
+      if (error.response) {
+        console.error('Response Error:', error.response.status, error.response.data);
+      } else if (error.request) {
+        console.error('No Response:', error.request);
+      } else {
+        console.error('Request Error:', error.message);
+      }
+      throw error;
     }
-    throw error;
-  }
+      async uploadBase64Image(folder, base64) {
+        try {
+          const res = await axios.post(`${BASE_URL}service/file/upload/base64`, {
+            folder,
+            image: base64
+          });
+          return { file: res.data.data };
+        } catch (error) {
+          return {
+            error: error?.response?.data?.message || 'Image upload failed'
+          };
+        }
+    }
 }
 
 export default new AdminPitchCategoryService();
