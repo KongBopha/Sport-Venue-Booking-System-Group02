@@ -19,20 +19,20 @@
         </li>
         <li>
           <router-link
-            to="/user/booking"
-            class="hover:text-blue-500"
-            :class="{ 'active-link': isActive('/user/booking') }"
-          >
-            <i class="bi bi-calendar-check"></i> Booking
-          </router-link>
-        </li>
-        <li>
-          <router-link
             to="/user/venue"
             class="hover:text-blue-500"
             :class="{ 'active-link': isActive('/user/venue') }"
           >
             <i class="bi bi-building"></i> Venue
+          </router-link>
+        </li>
+        <li>
+          <router-link
+            to="/user/booking"
+            class="hover:text-blue-500"
+            :class="{ 'active-link': isActive('/user/booking') }"
+          >
+            <i class="bi bi-calendar-check"></i> Booking
           </router-link>
         </li>
         <li>
