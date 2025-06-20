@@ -1,4 +1,3 @@
-<!-- dialog/Create.vue -->
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
@@ -31,6 +30,13 @@
               </option>
             </select>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Image</label>
+            <input type="file" @change="onImageSelected" accept="image/*" class="w-full border px-3 py-2 rounded" />
+            <div v-if="form.image" class="mt-2">
+              <img :src="form.image" class="h-20 object-cover rounded border" />
+            </div>
+          </div>
         </div>
 
         <div class="mt-6 flex justify-end space-x-2">
@@ -54,55 +60,64 @@ export default {
         price: null,
         required_players: null,
         volume: null,
-        sport_id: ''
+        sport_id: '',
+        image: '' // base64 image
       },
       sports: []
     };
   },
-  async created() {
-    await this.loadSports();
+  mounted() {
+    this.loadSports();
   },
   methods: {
     async loadSports() {
       try {
         const setup = await AdminPitchCategoryService.setupData();
-        this.sports = setup.sports || []; // Adjust based on real response shape
+        this.sports = setup.sports || [];
+        console.log('✅ Sports loaded:', this.sports);
       } catch (err) {
-        console.error('Failed to load sports setup data', err);
+        console.error('❌ Failed to load sports:', err);
       }
     },
-   async submit() {
-        try {
-            const response = await AdminPitchCategoryService.create(this.form);
-                // new fixed
-            // 🔁 Transform the response to match your component's expected structure
-            const newCategory = {
-            id: response.id,
-            name: response.name,
-            basePrice: response.price,
-            maxCapacity: response.required_players,
-            volume: response.volume,
-            pitchCount: 0, // default since it's not returned
-            // Optional:
-            editName: response.name,
-            editPrice: response.price,
-            editCapacity: response.required_players,
-            editVolume: response.volume
-            };
 
-            this.$emit('created', newCategory);
-            this.$emit('cancel');
+    onImageSelected(event) {
+      const file = event.target.files[0];
+      if (!file) return;
 
-            setTimeout(() => {
-            alert('✅ Category created successfully!');
-            }, 100);
-        } catch (error) {
-            console.error('Create Error:', error);
-            alert('❌ Failed to create category');
-        }
-        }
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.form.image = reader.result;
+      };
+      reader.readAsDataURL(file);
+    },
 
+    async submit() {
+      try {
+        const response = await AdminPitchCategoryService.create(this.form);
+        const newCategory = {
+          id: response.id,
+          name: response.name,
+          basePrice: response.price,
+          maxCapacity: response.required_players,
+          volume: response.volume,
+          img: response.img,
+          pitchCount: 0,
+          editName: response.name,
+          editPrice: response.price,
+          editCapacity: response.required_players,
+          editVolume: response.volume
+        };
 
+        this.$emit('created', newCategory);
+        this.$emit('cancel');
+        setTimeout(() => {
+          alert('✅ Category created successfully!');
+        }, 100);
+      } catch (error) {
+        console.error('Create Error:', error);
+        alert('❌ Failed to create category');
+      }
+    }
   }
 };
 </script>

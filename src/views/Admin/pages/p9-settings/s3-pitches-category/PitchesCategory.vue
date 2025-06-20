@@ -11,9 +11,23 @@
       <div v-for="category in categories" :key="category.id" class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors">
         <div class="flex items-center justify-between mb-3">
           <div class="flex items-center space-x-3">
-            <div :class="['w-10 h-10 rounded-lg flex items-center justify-center', category.bgColor]">
-              <component :is="category.icon" :class="['w-5 h-5', category.iconColor]" />
-            </div>
+           <!-- This replaces your current image + input area -->
+              <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 relative">
+                <img 
+                  v-if="category.img"
+                  :src="getFullImageUrl(category.img)" 
+                  alt="Preview" 
+                  class="absolute inset-0 w-full h-full object-cover z-0"
+                />
+                <input 
+                  v-if="editingId === category.id"
+                  type="file" 
+                  @change="onImageSelected($event, category)"
+                  accept="image/*"
+                  class="opacity-0 absolute inset-0 cursor-pointer z-10"
+                />
+              </div>
+
             <div>
               <!-- Name -->
               <h4 v-if="editingId !== category.id" class="font-medium text-gray-900">{{ category.name }}</h4>
@@ -83,71 +97,71 @@
 import { Plus, MoreVertical, Zap, Users, Waves, Target } from 'lucide-vue-next'
 import { ref, nextTick } from 'vue'
 import Create from './dialog/Create.vue';
-import  AdminPitchCategoryService  from './service';
+import AdminPitchCategoryService from './service';
+
 export default {
   name: 'Pitch-Category',
   components: {
-    Create // ✅ register it here
+    Create
   },
   data() {
     return {
-     categories: [],
-     editingId: null,
-     showCreateDialog: false
+      categories: [],
+      editingId: null,
+      showCreateDialog: false
     }
   },
   async created() {
     await this.listing();
   },
   methods: {
-    //listing category funtion
     async listing() {
       try {
         const response = await AdminPitchCategoryService.listing();
-        this.categories = response.map((item, index)=>({
-            id : item.id,
-            name : item.name,
-            pitchCount : item.pitchCount ?? 0,
-            basePrice : item.basePrice,
-            maxCapacity : item.maxCapacity,
-            volume : item.volume,
-            icon: [Zap, Target, Users, Waves][index % 4], // Rotate icons
-            bgColor: ['bg-green-100', 'bg-orange-100', 'bg-blue-100', 'bg-cyan-100'][index % 4],
-            iconColor: ['text-green-600', 'text-orange-600', 'text-blue-600', 'text-cyan-600'][index % 4],
-             // Editable temp fields
-            editName: item.name,
-            editPrice: item.basePrice,
-            editCapacity: item.maxCapacity,
-            editVolume: item.volume
-        }))
+        this.categories = response.map((item, index) => ({
+          id: item.id,
+          name: item.name,
+          pitchCount: item.pitchCount ?? 0,
+          basePrice: item.basePrice,
+          maxCapacity: item.maxCapacity,
+          volume: item.volume,
+          icon: [Zap, Target, Users, Waves][index % 4],
+          bgColor: ['bg-green-100', 'bg-orange-100', 'bg-blue-100', 'bg-cyan-100'][index % 4],
+          iconColor: ['text-green-600', 'text-orange-600', 'text-blue-600', 'text-cyan-600'][index % 4],
+          img: item.img ?? null,
+          editName: item.name,
+          editPrice: item.basePrice,
+          editCapacity: item.maxCapacity,
+          editVolume: item.volume
+        }));
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     },
-    //delete category funtion
+
     async deleteCategory(id) {
       if (!confirm('Are you sure you want to delete this category?')) return;
 
       try {
         await AdminPitchCategoryService.delete(id);
-        this.listing(); // Refresh after deletion
+        this.listing();
       } catch (error) {
         console.error('Error deleting category:', error);
       }
-      
     },
-    //Edit (update) pitch category
+
     async saveCategory(category) {
       try {
         const payload = {
           name: category.editName,
           price: category.editPrice,
           required_players: category.editCapacity,
-          volume: category.editVolume
+          volume: category.editVolume,
+          image: category.image ?? '' // now base64 if edited
         };
-         await AdminPitchCategoryService.update(category.id, payload);
+        await AdminPitchCategoryService.update(category.id, payload);
 
-      // Update local display values instead of re-fetching all
+        // Update local state
         category.name = category.editName;
         category.basePrice = category.editPrice;
         category.maxCapacity = category.editCapacity;
@@ -156,41 +170,59 @@ export default {
       } catch (error) {
         console.error('Error updating category:', error);
       }
-    
     },
-    //open create pitch category dialog 
+
     onCategoryCreated(newItem) {
-    this.showCreateDialog = false;
-    this.categories.unshift({
-      ...newItem,
-      pitchCount: 0,
-      icon: [Zap, Target, Users, Waves][this.categories.length % 4],
-      bgColor: ['bg-green-100', 'bg-orange-100', 'bg-blue-100', 'bg-cyan-100'][this.categories.length % 4],
-      iconColor: ['text-green-600', 'text-orange-600', 'text-blue-600', 'text-cyan-600'][this.categories.length % 4],
-      editName: newItem.name,
-      editPrice: newItem.price,
-      editCapacity: newItem.required_players,
-      editVolume: newItem.volume
-    });
-  },
+      this.showCreateDialog = false;
+      this.categories.unshift({
+        ...newItem,
+        pitchCount: 0,
+        icon: [Zap, Target, Users, Waves][this.categories.length % 4],
+        bgColor: ['bg-green-100', 'bg-orange-100', 'bg-blue-100', 'bg-cyan-100'][this.categories.length % 4],
+        iconColor: ['text-green-600', 'text-orange-600', 'text-blue-600', 'text-cyan-600'][this.categories.length % 4],
+        editName: newItem.name,
+        editPrice: newItem.price,
+        editCapacity: newItem.required_players,
+        editVolume: newItem.volume,
+        img: newItem.img // ✅ correct key from backend
+      });
+    },
 
-    // input control
     isInvalidKey(event) {
-      const allowedKeys = [
-        'Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'
-      ];
-
-      // Allow 0–9 digits
+      const allowedKeys = ['Backspace', 'Tab', 'ArrowLeft', 'ArrowRight', 'Delete'];
       const isNumberKey = event.key >= '0' && event.key <= '9';
-
       if (!isNumberKey && !allowedKeys.includes(event.key)) {
         event.preventDefault();
       }
-    }
+    },
+
+   getFullImageUrl(imgPath) {
+      if (!imgPath) return '';
+      if (imgPath.startsWith('data:image') || imgPath.startsWith('http')) {
+        return imgPath;
+      }
+      // Always ensure no duplicate slash in the middle
+      const base = import.meta.env.VITE_FILE_BASE_URL.replace(/\/+$/, '');
+      const path = imgPath.replace(/^\/+/, '');
+      return `${base}/${path}`;
+    },
 
 
+
+    async onImageSelected(event, category) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+   reader.onload = () => {
+      category.img = reader.result; // ✅ works in Vue 3 if 'img' is pre-defined
+    };
+
+
+    reader.readAsDataURL(file);
+  }
 
   }
 }
-
 </script>
