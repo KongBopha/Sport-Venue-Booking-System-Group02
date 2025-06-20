@@ -183,7 +183,8 @@ export default {
         editName: newItem.name,
         editPrice: newItem.price,
         editCapacity: newItem.required_players,
-        editVolume: newItem.volume
+        editVolume: newItem.volume,
+        img: newItem.img // ✅ correct key from backend
       });
     },
 
@@ -195,12 +196,18 @@ export default {
       }
     },
 
-    getFullImageUrl(imgPath) {
+   getFullImageUrl(imgPath) {
       if (!imgPath) return '';
-      return imgPath.startsWith('data:image') || imgPath.startsWith('http')
-        ? imgPath
-        : `${import.meta.env.VITE_FILE_BASE_URL}${imgPath.replace(/^\/+/, '')}`;
+      if (imgPath.startsWith('data:image') || imgPath.startsWith('http')) {
+        return imgPath;
+      }
+      // Always ensure no duplicate slash in the middle
+      const base = import.meta.env.VITE_FILE_BASE_URL.replace(/\/+$/, '');
+      const path = imgPath.replace(/^\/+/, '');
+      return `${base}/${path}`;
     },
+
+
 
     async onImageSelected(event, category) {
     const file = event.target.files[0];
