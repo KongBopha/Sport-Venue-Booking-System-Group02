@@ -39,14 +39,53 @@
             <p class="text-gray-600 mt-1">{{ getPageDescription($route.path) }}</p>
           </div>
           <div class="flex items-center space-x-4">
-            <button class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+            <!-- <button class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
               <Bell class="w-6 h-6" />
-            </button>
+            </button> -->
             <button @click="navigateTo('/admin/settings')" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
               <Settings class="w-6 h-6" />
             </button>
-            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <span class="text-white text-sm font-medium">A</span>
+            <div class="relative inline-block">
+              <!-- Image Trigger -->
+              <img 
+                :src="fileUrl + user.avatar" 
+                class="w-8 h-8 rounded-full cursor-pointer"
+                @click="toggleDropdown"
+                alt="User avatar"
+              />
+
+              <!-- Dropdown Menu -->
+              <transition name="fade">
+                <div v-show="showDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                  <div class="py-1">
+                    <!-- Menu Item 1 -->
+                    <button
+                      @click="handleProfile"
+                      class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      View Profile
+                    </button>
+
+                    <button
+                      @click="navigateTo('/')"
+                      class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      goto User Page
+                    </button>
+                    
+                    <!-- Menu Item 2 -->
+                    <button
+                      @click="handleLogout"
+                      class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </transition>
+
+              <!-- Click outside handler -->
+              <div v-if="showDropdown" @click="closeDropdown" class="fixed inset-0 h-full w-full bg-transparent z-9"></div>
             </div>
           </div>
         </div>
@@ -60,73 +99,94 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { 
-  Home, 
-  CreditCard, 
-  Calendar, 
-  ShoppingCart, 
-  Package, 
-  Coffee,
-  Users, 
-  Building,
-  Shield,
-  Settings, 
-  ChevronRight, 
-  Bell
-} from 'lucide-vue-next'
-
+<script>
+import { Home, CreditCard, Calendar, ShoppingCart, Package, Coffee, Users, Building, Shield, Settings, ChevronRight, Bell } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
-const router = useRouter()
 
-// Navigation items
-const navigationItems = [
-  { name: 'Dashboard', icon: Home , route: '/admin/dashboard'},
-  { name: 'Payment', icon: CreditCard , route: '/admin/payment'},
-  { name: 'Booking', icon: Calendar , route: '/admin/booking'},
-  { name: 'Equipment Sale', icon: ShoppingCart , route: '/admin/equipment-sale'},
-  { name: 'Equipment', icon: Package , route: '/admin/equipments'},
-  { name: 'Drink', icon: Coffee , route: '/admin/drink'},
-  { name: 'Users', icon: Users , route: '/admin/users'},
-  { name: 'Sponsor', icon: Building , route: '/admin/sponsor'},
-  { name: 'Settings', icon: Settings, route: '/admin/settings' }
-]
+export default {
+  name: 'NavigationComponent',
+  components: {
+    Home, CreditCard, Calendar, ShoppingCart, Package, Coffee, Users, 
+    Building, Shield, Settings, ChevronRight, Bell
+  },
+  data() {
+    return {
+      showDropdown: false,
+      fileUrl: import.meta.env.VITE_FILE_BASE_URL,
+      user: JSON.parse(localStorage.getItem('user')),
+      navigationItems: [
+        { name: 'Dashboard', icon: Home, route: '/admin/dashboard' },
+        { name: 'Payment', icon: CreditCard, route: '/admin/payment' },
+        { name: 'Booking', icon: Calendar, route: '/admin/booking' },
+        { name: 'Equipment Sale', icon: ShoppingCart, route: '/admin/equipment-sale' },
+        { name: 'Equipment', icon: Package, route: '/admin/equipments' },
+        { name: 'Drink', icon: Coffee, route: '/admin/drink' },
+        { name: 'Users', icon: Users, route: '/admin/users' },
+        { name: 'Sponsor', icon: Building, route: '/admin/sponsor' },
+        { name: 'Settings', icon: Settings, route: '/admin/settings' }
+      ]
+    }
+  },
+  methods: {
+    getPageTitle(path, fallback = 'Dashboard') {
+      const matchedItem = [...this.navigationItems]
+        .sort((a, b) => b.route.length - a.route.length)
+        .find(item => path.startsWith(item.route))
 
-const getPageTitle = (path, fallback = 'Dashboard') => {
-  const matchedItem = navigationItems
-    .slice()
-    .sort((a, b) => b.route.length - a.route.length)
-    .find(item => path.startsWith(item.route));
+      return matchedItem ? matchedItem.name : fallback
+    },
 
-  return matchedItem ? matchedItem.name : fallback;
-};
+    getPageDescription(path) {
+      const descriptions = {
+        '/admin/dashboard': 'Overview of your sport venue management system',
+        '/admin/payment': 'Manage payments and financial transactions',
+        '/admin/booking': 'Handle venue bookings and reservations',
+        '/admin/equipment-sale': 'Track equipment sales and inventory',
+        '/admin/equipments': 'Manage sports equipment and rentals',
+        '/admin/drink': 'Beverage inventory and sales management',
+        '/admin/users': 'User accounts and member management',
+        '/admin/sponsor': 'Sponsor relationships and partnerships',
+        '/admin/settings': 'System configuration and preferences'
+      }
 
-const getPageDescription = (path) => {
-  const descriptions = {
-    '/admin/dashboard': 'Overview of your sport venue management system',
-    '/admin/payment': 'Manage payments and financial transactions',
-    '/admin/booking': 'Handle venue bookings and reservations',
-    '/admin/equipment-sale': 'Track equipment sales and inventory',
-    '/admin/equipments': 'Manage sports equipment and rentals',
-    '/admin/drink': 'Beverage inventory and sales management',
-    '/admin/users': 'User accounts and member management',
-    '/admin/sponsor': 'Sponsor relationships and partnerships',
-    '/admin/settings': 'System configuration and preferences'
-  }
-  // Try to find the most specific matching prefix
-  for (const [route, description] of Object.entries(descriptions).sort(
-    ([a], [b]) => b.length - a.length
-  )) {
-    if (path.startsWith(route)) {
-      return description;
+      for (const [route, description] of Object.entries(descriptions).sort(
+        ([a], [b]) => b.length - a.length
+      )) {
+        if (path.startsWith(route)) {
+          return description
+        }
+      }
+
+      return ''
+    },
+
+    navigateTo(path) {
+      this.$router.push(path)
+    },
+    toggleDropdown() {
+      this.showDropdown = !this.showDropdown
+    },
+    closeDropdown() {
+      this.showDropdown = false
+    },
+    handleProfile() {
+      // Handle profile action
+      this.closeDropdown()
+    },
+    handleLogout() {
+      this.isAuthenticated = false;
+      localStorage.clear();
+      this.$router.push('/auth/login');
     }
   }
-
-  return '';
-}
-
-const navigateTo = (path) => {
-  router.push(path)
 }
 </script>
+
+<style>
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>
