@@ -1,7 +1,7 @@
 <template>
   <div class="px-6 md:px-12 py-12">
     <!-- Title -->
-    <h2 class="text-3xl font-bold text-teal-600 mb-10">About Sports</h2>
+    <h2 class="text-3xl text-center font-bold text-teal-600 mb-10">About Sports</h2>
 
     <!-- Sports Cards -->
     <div class="flex flex-wrap justify-center gap-x-20 gap-y-14">

@@ -7,39 +7,31 @@ const props = defineProps({
 
 const emit = defineEmits(['sport-changed']);
 
-// Sports data with ids and labels
 const sports = [
   { id: 1, label: 'Football Sport' },
   { id: 2, label: 'Volleyball' },
-  { id: 3, label: 'Table Tennis' },
+  { id: 3, label: 'Table Tennis' }
 ];
 
-// Emit the selected sport id when button clicked
-function selectSport(sportId) {
-  if (sportId !== props.selectedSportId) {
-    emit('sport-changed', sportId);
+function selectSport(sport) {
+  if (sport.id !== props.selectedSportId) {
+    emit('sport-changed', { id: sport.id, label: sport.label });
   }
 }
 </script>
 
 <template>
-  <section
-    class="flex flex-wrap flex-auto w-full min-h-[150px] items-center  justify-center gap-x-[200px] gap-y-10 py-10"
-  >
+  <section class="flex flex-wrap justify-center gap-10 py-10">
     <button
       v-for="sport in sports"
       :key="sport.id"
-      class="flex items-center justify-center border hover:bg-blue-200 rounded-xl px-6 py-4 text-[20px] font-bold text-black"
-      :class="{
-        'border-blue-600 bg-blue-100': sport.id === selectedSportId,
-        'border-gray-300': sport.id !== selectedSportId
-      }"
-      @click="selectSport(sport.id)"
+      @click="selectSport(sport)"
+      :class="[
+        'border px-6 py-4 rounded-xl font-bold text-[20px]',
+        selectedSportId === sport.id ? 'bg-blue-100 border-blue-600 text-blue-800' : 'border-gray-300 text-black'
+      ]"
     >
       {{ sport.label }}
     </button>
-      
-    </section>
-  </template>
- 
-
+  </section>
+</template>
