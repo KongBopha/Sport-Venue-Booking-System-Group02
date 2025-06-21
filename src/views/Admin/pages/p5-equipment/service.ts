@@ -42,6 +42,24 @@ export class AdminEquimentService {
         throw error;
       });
   }
+
+  updateEquipment(id, data) {
+    return this.http.post(`admin/equipments/${id}`, data)
+      .then(res => res.data)
+      .catch(err => {
+        console.error('Error updating equipment:', err);
+        throw err;
+      });
+  }
+
+  deleteEquipment(id) {
+    return this.http.delete(`admin/equipments/${id}`)
+      .then(res => res.data)
+      .catch(err => {
+        console.error('Error deleting equipment:', err);
+        throw err;
+      });
+  }
 }
 
 export default new AdminEquimentService();
