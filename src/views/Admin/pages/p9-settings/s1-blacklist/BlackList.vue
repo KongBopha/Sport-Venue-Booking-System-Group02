@@ -26,8 +26,12 @@
           <tr v-for="item in blacklistItems" :key="item.id" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
-                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <UserX class="w-5 h-5 text-red-600" />
+                <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100 border">
+                  <img
+                    :src="item.avatar"
+                    alt="avatar"
+                    class="w-full h-full object-cover"
+                  />
                 </div>
                 <div class="ml-4">
                   <div class="text-sm font-medium text-gray-900">{{ item.user }}</div>
@@ -100,7 +104,9 @@ export default {
           user: item.name || item.user?.name || 'N/A',
           phone1: item.user?.phone || 'N/A',
           reason: item.reason,
-          dateAdded: new Date(item.created_at).toLocaleDateString()
+          dateAdded: new Date(item.created_at).toLocaleDateString(),
+          avatar: this.getFullImageUrl(item.user?.avatar)
+
         }))
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -135,6 +141,16 @@ export default {
      onCreated() {
       this.showCreateDialog = false
       this.listing()
+    },
+    getFullImageUrl(imgPath) {
+      if (!imgPath) return '';
+      if (imgPath.startsWith('data:image') || imgPath.startsWith('http')) {
+        return imgPath;
+      }
+      // Always ensure no duplicate slash in the middle
+      const base = import.meta.env.VITE_FILE_BASE_URL.replace(/\/+$/, '');
+      const path = imgPath.replace(/^\/+/, '');
+      return `${base}/${path}`;
     }
 
   },
