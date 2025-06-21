@@ -57,7 +57,7 @@
               </template>
               <template v-else>
                 <button class="text-blue-600 hover:text-blue-900" @click="startEdit(item)">Edit</button>
-                <button class="text-red-600 hover:text-red-800" @click="deleteItem(item.id)">Remove</button>
+                <button class="text-red-600 hover:text-red-800" @click="deleteItem(item)">Remove</button>
               </template>
             </div>
           </td>
@@ -71,6 +71,14 @@
   @close="showCreateDialog = false"
   @created="onCreated"
 />
+<DeleteConfirmDialog
+  :show="showDeleteDialog"
+  :userToDelete="deletingItem"
+  :submitting="submittingDelete"
+  @close="showDeleteDialog = false"
+  @confirm-delete="confirmDelete"
+/>
+
 
 </template>
 
@@ -79,9 +87,11 @@ import { ref } from 'vue'
 import { UserX, Plus } from 'lucide-vue-next'
 import AdminBlackListService from './service'
 import Create from './dialog/Create.vue'
+import DeleteConfirmDialog from './dialog/DeleteConfirmDialog.vue'
 export default {
   components: {
-    Create
+    Create,
+    DeleteConfirmDialog
   },
   name: 'BlackList',
   data() {
@@ -89,7 +99,9 @@ export default {
       blacklistItems: [],
       editingItemId: null,
       editedReason: '',
-      showCreateDialog: false // for modal
+      showCreateDialog: false, // for modal
+      deletingItem: null,
+    submittingDelete: false
     }
   },
   async created() {
@@ -129,15 +141,24 @@ export default {
       this.editingItemId = null
       this.editedReason = ''
     },
-    async deleteItem(id) {
-      if (!confirm('Are you sure you want to delete this entry?')) return
+   deleteItem(item) {
+      this.deletingItem = item;
+      this.showDeleteDialog = true;
+    },
+    async confirmDelete(item) {
+      this.submittingDelete = true;
       try {
-        await AdminBlackListService.delete(id)
-        await this.listing()
+        await AdminBlackListService.delete(item.id);
+        this.showDeleteDialog = false;
+        this.deletingItem = null;
+        await this.listing();
       } catch (err) {
-        console.error('Delete failed', err)
+        console.error('Delete failed', err);
+      } finally {
+        this.submittingDelete = false;
       }
     },
+
      onCreated() {
       this.showCreateDialog = false
       this.listing()

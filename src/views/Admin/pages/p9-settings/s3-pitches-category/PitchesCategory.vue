@@ -80,7 +80,7 @@
           <button @click="editingId === category.id ? saveCategory(category) : (editingId = category.id)"  class="flex-1 text-blue-600 hover:text-blue-700 text-sm font-medium"> 
             {{ editingId === category.id ? 'Save' : 'Edit' }}
           </button>
-          <button  @click="deleteCategory(category.id)" class="flex-1 text-red-600 hover:text-red-700 text-sm font-medium">Delete</button>
+          <button  @click="deleteCategory(category)" class="flex-1 text-red-600 hover:text-red-700 text-sm font-medium">Delete</button>
         </div>
       </div>
     </div>
@@ -90,6 +90,14 @@
     @created="onCategoryCreated"
     @cancel="showCreateDialog = false"
   />
+  <DeleteConfirmDialog
+  :show="showDeleteDialog"
+  :userToDelete="deletingItem"
+  :submitting="submittingDelete"
+  @close="showDeleteDialog = false"
+  @confirm-delete="confirmDelete"
+/>
+
 
 </template>
 
@@ -98,17 +106,21 @@ import { Plus, MoreVertical, Zap, Users, Waves, Target } from 'lucide-vue-next'
 import { ref, nextTick } from 'vue'
 import Create from './dialog/Create.vue';
 import AdminPitchCategoryService from './service';
-
+import DeleteConfirmDialog from './dialog/DeleteConfirmDialog.vue';
 export default {
   name: 'Pitch-Category',
   components: {
-    Create
+    Create,
+    DeleteConfirmDialog
   },
   data() {
     return {
       categories: [],
       editingId: null,
-      showCreateDialog: false
+      showCreateDialog: false,
+      showDeleteDialog: false,
+      deletingItem: null,
+      submittingDelete: false
     }
   },
   async created() {
@@ -139,16 +151,25 @@ export default {
       }
     },
 
-    async deleteCategory(id) {
-      if (!confirm('Are you sure you want to delete this category?')) return;
-
-      try {
-        await AdminPitchCategoryService.delete(id);
-        this.listing();
-      } catch (error) {
-        console.error('Error deleting category:', error);
-      }
+    deleteCategory(item) {
+      this.deletingItem = item;
+      this.showDeleteDialog = true;
     },
+
+    async confirmDelete(item) {
+        this.submittingDelete = true;
+        try {
+          await AdminPitchCategoryService.delete(item.id); // ✅ Corrected service
+          this.showDeleteDialog = false;
+          this.deletingItem = null;
+          await this.listing();
+        } catch (err) {
+          console.error('Delete failed', err);
+        } finally {
+          this.submittingDelete = false;
+        }
+      },
+
 
     async saveCategory(category) {
       try {
