@@ -188,11 +188,11 @@
             <div class="mb-4">
               <label class="block text-sm font-medium mb-1">Category</label>
               <select
-                v-model="selectedEquipment.category"
+                v-model="selectedEquipment.sport_id"
                 required
                 class="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500"
               >
-                <option disabled value="">Select a category</option>
+                <option disabled value=""></option>
                 <option
                   v-for="category in categories"
                   :key="category.id"
@@ -295,7 +295,7 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <tr
-              v-for="item in filteredEquipment"
+              v-for="item in equipment"
               :key="item.id"
               class="hover:bg-gray-50"
             >
@@ -320,7 +320,7 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ item.category }}
+                {{ item.sport_id }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ item.updated_at }}
@@ -498,7 +498,13 @@ export default {
       //   },
       // ]),
 
-      equipment:[],
+      equipment: [],
+
+      categories: [
+        { id: 1, name: "Football" },
+        { id: 2, name: "Volleyball" },
+        { id: 3, name: "Table Tennis" },
+      ],
 
       showAddDialog: false,
       isEditMode: false,
@@ -568,22 +574,33 @@ export default {
       });
     },
   },
+
   async created() {
-    await this.listing();
-    // await this.fetchEquipment()
+    const storedEquipment = localStorage.getItem('equipment');
+    if (storedEquipment) {
+      this.equipment = JSON.parse(storedEquipment);
+    } else {
+      await this.listing(); // Fetch from backend if no local data
+    }
   },
 
   methods: {
     async listing() {
-      this.loading= true
+      this.loading = true;
       try {
         const response = await AdminEquimentService.listing();
-        this.equipment = response.data.equipment || [];
-        console.log(response);
+        this.equipment = response.map((item, index) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          sport_id: item.sport_id,
+          image: item.image ?? null,
+          updated_at: new Date().toISOString().slice(0, 10),
+        }));
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
@@ -594,7 +611,7 @@ export default {
       this.selectedEquipment = {
         id: null,
         name: "",
-        category: "",
+        sport_id: "",
         price: 0,
         updated_at: new Date().toISOString().slice(0, 10),
       };
@@ -658,6 +675,8 @@ export default {
           updated_at: new Date().toISOString().slice(0, 10),
         });
       }
+      // Save to localStorage
+      localStorage.setItem('equipment', JSON.stringify(this.equipment));
       this.closeAddEditDialog();
     },
 
@@ -674,28 +693,10 @@ export default {
       this.equipment = this.equipment.filter(
         (e) => e.id !== this.selectedEquipment.id
       );
+      // Update localStorage after deletion
+      localStorage.setItem('equipment', JSON.stringify(this.equipment));
       this.closeDeleteDialog();
     },
   },
 };
-
-
-// const openAddDialog = () => {
-//   selectedDrink.value = { id: null, name: "", price: 0, image: "" };
-//   isEditMode.value = false;
-//   showAddEditDialog.value = true;
-// };
-
-// Fetch drinks from backend
-// const fetchDrinks = async () => {
-//   try {
-//     const data = await AdminDrinkService.listing()
-//     drinks.value = data.map(d => ({
-//       ...d,
-//       image: d.image || 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/15-09-26-RalfR-WLC-0098_-_Coca-Cola_glass_bottle_%28Germany%29.jpg/250px-15-09-26-RalfR-WLC-0098_-_Coca-Cola_glass_bottle_%28Germany%29.jpg'
-//     }))
-//   } catch (error) {
-//     console.error('Error fetching drinks:', error)
-//   }
-// }
 </script>
