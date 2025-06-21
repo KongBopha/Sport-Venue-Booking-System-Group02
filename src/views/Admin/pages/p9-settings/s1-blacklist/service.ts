@@ -42,6 +42,43 @@ export class AdminBlackListService {
         throw error;
       });
   }
+  update(id: number, payload: { reason: string }) {
+    return this.http
+      .put(`admin/setting/blacklist/${id}`, payload)
+      .then(res => res.data)
+  }
+  delete(id: number) {
+    return this.http
+      .delete(`admin/setting/blacklist/${id}`)
+      .then(res => res.data)
+      .catch(error => {
+        console.error('Failed to delete blacklist entry:', error);
+        throw error;
+      });
+  }
+  // ✅ NEW: Fetch user list for dropdown
+  setup() {
+    return this.http
+      .get('admin/setting/blacklist/setup')
+      .then((res) => res.data)
+      .catch((error) => {
+        console.error('Failed to fetch setup data:', error)
+        throw error
+      })
+  }
+
+  // ✅ NEW: Create a blacklist entry
+  create(payload: { user_id: number; reason: string }) {
+    return this.http
+      .post('admin/setting/blacklist', payload)
+      .then((res) => res.data)
+      .catch((error) => {
+        console.error('Failed to create blacklist entry:', error)
+        throw error
+      })
+  }
+
+
 }
 
 export default new AdminBlackListService();
