@@ -42,6 +42,34 @@ export class AdminEquimentSaleService {
         throw error;
       });
   }
+   delete(id: number) {
+    return this.http
+      .delete(`admin/equipment-sales/${id}`)
+      .then(res => res.data)
+      .catch(error => {
+        console.error('Failed to delete blacklist entry:', error);
+        throw error;
+      });
+  }
+    setup() {
+    return this.http
+      .get('admin/equipment-sales/setup')
+      .then((res) => res.data)
+      .catch((error) => {
+        console.error('Failed to fetch setup data:', error)
+        throw error
+      })
+  }
+  create(payload) {
+  return this.http.post('admin/equipment-sales', payload)
+    .then(res => res.data)
+}
+update(id, payload) {
+  return this.http.put(`admin/equipment-sales/${id}`, payload)
+    .then(res => res.data)
+}
+
+
 }
 
 export default new AdminEquimentSaleService();
