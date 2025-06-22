@@ -1,12 +1,12 @@
 <template>
   <div class="space-y-8">
     <!-- Sales Stats -->
-    <!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Total Sales</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">$24,567</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2"> ${{ totalSalesAmount.toLocaleString() }}</p>
           </div>
           <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
             <ShoppingBag class="w-6 h-6 text-green-600" />
@@ -18,7 +18,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Items Sold</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">456</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2"> {{ totalQuantitySold }}</p>
           </div>
           <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
             <Package class="w-6 h-6 text-blue-600" />
@@ -30,7 +30,7 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Avg. Sale Value</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">$54</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">${{ averageSalePrice.toFixed(2) }}</p>
           </div>
           <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
             <TrendingUp class="w-6 h-6 text-purple-600" />
@@ -38,7 +38,7 @@
         </div>
       </div>
 
-    </div> -->
+    </div>
 
     <!-- Sales Management -->
     <div class="grid grid-cols-1  gap-8">
@@ -61,7 +61,7 @@
           <table class="w-full">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reciept Number</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Receipt Number</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Equipment</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
@@ -72,7 +72,7 @@
             </thead>
             <tbody class="divide-y divide-gray-200">
               <tr v-for="sale in sales" :key="sale.id" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ sale.reciept }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ sale.receipt }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
@@ -88,24 +88,23 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${{ sale.total }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.updated_at }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <div class="flex items-center space-x-2">
-                  <button
-                    class="text-blue-600 hover:text-blue-900"
-                    @click="editSale(sale)"
-                    title="Edit"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    class="text-red-600 hover:text-red-900"
-                    @click="deleteItem(sale)"
-                    title="Delete"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-
+                  <div class="flex items-center space-x-2">
+                    <button
+                      class="text-blue-600 hover:text-blue-900"
+                      @click="editSale(sale)"
+                      title="Edit"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="text-red-600 hover:text-red-900"
+                      @click="deleteItem(sale)"
+                      title="Delete"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -196,6 +195,9 @@ export default {
   data() {
     return {
       sales: [],
+      totalSalesAmount: 0,
+      totalQuantitySold: 0,
+      averageSalePrice: 0,
       deletingItem: null,
       submittingDelete: false,
       showDeleteDialog : false,
@@ -209,18 +211,24 @@ export default {
   methods: {
     async listing() {
       try {
-        const response = await AdminEquimentSaleService.listing()
-        // Transform API output to fit the table columns
-       this.sales = response.map(item => ({
-        ...item, // spread original sale data for editing
-          id : item.id,
-          reciept: item.payment?.receipt_number || item.id,
+        const response = await AdminEquimentSaleService.listing();
+
+        // Extract meta info
+        this.totalSalesAmount = response.meta.totalSalesAmount;
+        this.totalQuantitySold = response.meta.totalQuantitySold;
+        this.averageSalePrice = response.meta.averageSalePrice;
+
+        // Transform sales list
+        this.sales = response.sales.map(item => ({
+          ...item,
+          id: item.id,
+          receipt: item.payment?.receipt_number || item.id,
           customer: item.user?.name || '',
           equipment: item.equipment?.name || '',
           quantity: item.qty,
           total: item.total_price,
           updated_at: new Date(item.updated_at).toLocaleDateString()
-        }))
+        }));
 
       } catch (error) {
         console.error('Error fetching data:', error)
