@@ -47,6 +47,24 @@ export class ProfileService {
         throw error;
       });
   }
+  /**
+ * Change user password.
+ * @param passwordData - The password payload.
+ */
+    changePassword(payload) {
+    return fetch(`${import.meta.env.VITE_API_BASE_URL}profile/update-password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('Token')}`
+      },
+      body: JSON.stringify(payload)
+    }).then(res => {
+      if (!res.ok) throw new Error('Password update failed');
+      return res.json();
+    });
+  }
+
 }
 
 export default new ProfileService();
