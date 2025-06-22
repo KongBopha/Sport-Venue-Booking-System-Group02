@@ -77,7 +77,6 @@
 <script>
 import ProfileService from './service';
 
-
 export default {
   data() {
     return {
