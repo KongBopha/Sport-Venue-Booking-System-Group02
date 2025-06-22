@@ -21,6 +21,7 @@ const routes = [
       },
       {
         path: 'venue', // Corrected typo here
+        name:'VenueBooking',
         component: () => import('@/views/User/Venue.vue') 
       },
       {
