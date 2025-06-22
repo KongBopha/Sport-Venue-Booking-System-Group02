@@ -42,6 +42,28 @@ export class AdminSportService {
         throw error;
       });
   }
+   delete(id: number) {
+    return this.http.delete(`/admin/setting/sports/${id}`).then((res) => res.data);
+  }
+  update(id, data) {
+    return this.http.put(`/admin/setting/sports/${id}`, data)
+      .then(res => res.data)
+      .catch(error => {
+        console.error('Update Error:', error.response?.data || error.message);
+        throw error;
+      });
+  }
+  create(data) {
+      return this.http.post('/admin/setting/sports', data)
+        .then(res => res.data)
+        .catch(error => {
+          console.error('Create Error:', error.response?.data || error.message);
+          throw error;
+        });
+    }
+
+
+  
 }
 
 export default new AdminSportService();

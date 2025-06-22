@@ -171,7 +171,7 @@ export default {
     },
     handleProfile() {
       // Handle profile action
-      this.closeDropdown()
+       this.$router.push('/account/profile');
     },
     handleLogout() {
       this.isAuthenticated = false;
