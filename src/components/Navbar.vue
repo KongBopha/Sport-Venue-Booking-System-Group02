@@ -96,7 +96,7 @@
             Logout
           </a>
         </li>
-        <li v-if="isAdmin">
+        <li v-if="isAdmin && isAuthenticated">
           <a
             href="#"
             @click.prevent="navigateTo('/admin')"
