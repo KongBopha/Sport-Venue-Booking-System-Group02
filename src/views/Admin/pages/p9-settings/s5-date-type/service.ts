@@ -42,6 +42,19 @@ export class AdminDateTypeService {
         throw error;
       });
   }
+    create(payload) {
+    return this.http.post('admin/setting/date-types', payload)
+      .then(res => res.data)
+  }
+
+  delete(id) {
+    return this.http.delete(`admin/setting/date-types/${id}`)
+  }
+  update(id, data) {
+    return this.http.put(`/admin/setting/date-types/${id}`, data);
+  }
+
+
 }
 
 export default new AdminDateTypeService();
