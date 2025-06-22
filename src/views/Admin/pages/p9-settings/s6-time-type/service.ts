@@ -42,6 +42,17 @@ export class AdminTimeTypeService {
         throw error;
       });
   }
+    create(payload) {
+    return this.http.post('admin/setting/time-types', payload)
+      .then(res => res.data)
+  }
+
+  delete(id) {
+    return this.http.delete(`admin/setting/time-types/${id}`)
+  }
+  update(id, data) {
+    return this.http.put(`/admin/setting/time-types/${id}`, data);
+  }
 }
 
 export default new AdminTimeTypeService();

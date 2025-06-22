@@ -1,41 +1,37 @@
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
     <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-lg">
-      <h2 class="text-lg font-bold mb-4">Create Pitch Category</h2>
+      <h2 class="text-lg font-bold mb-4">Create Time Type</h2>
 
       <form @submit.prevent="submit">
         <div class="space-y-4">
+      <!-- From Time -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">From Time</label>
+          <input
+            v-model="form.from_time"
+            type="time"
+            required
+            class="w-full border px-3 py-2 rounded"
+            placeholder="Start time"
+          />
+        </div>
+
+        <!-- To Time -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700">To Time</label>
+          <input
+            v-model="form.to_time"
+            type="time"
+            required
+            class="w-full border px-3 py-2 rounded"
+            placeholder="End time"
+          />
+        </div>
+
           <div>
-            <label class="block text-sm font-medium text-gray-700">Name</label>
-            <input v-model="form.name" required class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Base Price</label>
-            <input v-model.number="form.price" type="number" required class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Required Players</label>
-            <input v-model.number="form.required_players" type="number" required class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Volume</label>
-            <input v-model.number="form.volume" type="number" required class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Sport</label>
-            <select v-model.number="form.sport_id" required class="w-full border px-3 py-2 rounded">
-              <option disabled value="">Select Sport</option>
-              <option v-for="sport in sports" :key="sport.id" :value="sport.id">
-                {{ sport.name }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Image</label>
-            <input type="file" @change="onImageSelected" accept="image/*" class="w-full border px-3 py-2 rounded" />
-            <div v-if="form.image" class="mt-2">
-              <img :src="form.image" class="h-20 object-cover rounded border" />
-            </div>
+            <label class="block text-sm font-medium text-gray-700">Price Multiplier</label>
+            <input v-model.number="form.price_multiplier" type="number" step="0.01" min="0" required class="w-full border px-3 py-2 rounded" placeholder="e.g., 1.25" />
           </div>
         </div>
 
@@ -49,75 +45,66 @@
 </template>
 
 <script>
-import AdminPitchCategoryService from '../service';
+import AdminTimeTypeService from '../service';
 
 export default {
   emits: ['created', 'cancel'],
   data() {
     return {
       form: {
-        name: '',
-        price: null,
-        required_players: null,
-        volume: null,
-        sport_id: '',
-        image: '' // base64 image
-      },
-      sports: []
+        from_time: null,
+        to_time: null,
+        price_multiplier: 1.0
+      }
     };
   },
-  mounted() {
-    this.loadSports();
-  },
   methods: {
-    async loadSports() {
-      try {
-        const setup = await AdminPitchCategoryService.setupData();
-        this.sports = setup.sports || [];
-        console.log('✅ Sports loaded:', this.sports);
-      } catch (err) {
-        console.error('❌ Failed to load sports:', err);
-      }
-    },
-
-    onImageSelected(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.form.image = reader.result;
-      };
-      reader.readAsDataURL(file);
-    },
-
     async submit() {
       try {
-        const response = await AdminPitchCategoryService.create(this.form);
-        const newCategory = {
-          id: response.id,
-          name: response.name,
-          basePrice: response.price,
-          maxCapacity: response.required_players,
-          volume: response.volume,
-          img: response.img,
-          pitchCount: 0,
-          editName: response.name,
-          editPrice: response.price,
-          editCapacity: response.required_players,
-          editVolume: response.volume
+        const [fromHour, fromMinute] = this.form.from_time.split(':').map(Number);
+        const [toHour, toMinute] = this.form.to_time.split(':').map(Number);
+
+        if (
+          isNaN(fromHour) || isNaN(fromMinute) ||
+          isNaN(toHour) || isNaN(toMinute)
+        ) {
+          alert('❌ Invalid time format.');
+          return;
+        }
+
+        const fromDecimal = fromHour + fromMinute / 60;
+        const toDecimal = toHour + toMinute / 60;
+
+        if (fromDecimal >= toDecimal) {
+          alert('❌ "From Time" must be earlier than "To Time".');
+          return;
+        }
+
+        const payload = {
+          from_time: fromDecimal,
+          to_time: toDecimal,
+          price_multiplier: this.form.price_multiplier
         };
 
-        this.$emit('created', newCategory);
+        const response = await AdminTimeTypeService.create(payload);
+
+        const created = {
+          id: response.id,
+          from_time: response.from_time,
+          to_time: response.to_time,
+          priceMultiplier: response.price_multiplier,
+          timeRange: `${this.form.from_time} - ${this.form.to_time}`
+        };
+
+        this.$emit('created', created);
         this.$emit('cancel');
-        setTimeout(() => {
-          alert('✅ Category created successfully!');
-        }, 100);
+        setTimeout(() => alert('✅ Time type created successfully!'), 100);
       } catch (error) {
         console.error('Create Error:', error);
-        alert('❌ Failed to create category');
+        alert('❌ Failed to create time type');
       }
     }
+
   }
 };
 </script>
