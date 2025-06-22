@@ -1,4 +1,5 @@
 <template>
+  <Navbar/>
   <div class="page">
     <!-- Profile Section -->
     <main class="profile-section">
@@ -75,10 +76,14 @@
 </template>
 
 <script>
+import Navbar from '@/components/Navbar.vue';
 import ProfileService from './service';
 
 
 export default {
+    components: {
+      Navbar
+  },
   data() {
     return {
       fileUrl: import.meta.env.VITE_FILE_BASE_URL,

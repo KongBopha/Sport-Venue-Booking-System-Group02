@@ -42,6 +42,37 @@ export class AdminPitchService {
         throw error;
       });
   }
+  delete(id: number) {
+    return this.http.delete(`/admin/setting/pitches/${id}`)
+      .then(res => res.data)
+      .catch(error => {
+        console.error('Delete Error:', error);
+        throw error;
+      });
+  }
+  getSetupData() {
+    return this.http.get('/admin/setting/pitches/setup-data')
+      .then(res => res.data)
+      .catch(error => {
+        console.error('Setup Data Error:', error);
+        throw error;
+      });
+  }
+  create(data) {
+    return this.http.post('/admin/setting/pitches', data)
+      .then(res => res.data)
+  }
+
+  update(id, payload) {
+    return this.http.put(`/admin/setting/pitches/${id}`, payload)
+      .then(res => res.data)
+      .catch(error => {
+        console.error('Update Error:', error);
+        throw error;
+      });
+  }
+
+
 }
 
 export default new AdminPitchService();
