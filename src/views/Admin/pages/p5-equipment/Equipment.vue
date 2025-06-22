@@ -188,15 +188,15 @@
             <div class="mb-4">
               <label class="block text-sm font-medium mb-1">Category</label>
               <select
-                v-model="selectedEquipment.sport_id"
+                v-model="selectedEquipment.categoryId"
                 required
                 class="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-blue-500"
               >
-                <option disabled value=""></option>
+                <option disabled value="">Select a category</option>
                 <option
                   v-for="category in categories"
                   :key="category.id"
-                  :value="category.name"
+                  :value="category.id"
                 >
                   {{ category.name }}
                 </option>
@@ -320,7 +320,7 @@
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ item.sport_id }}
+                {{ getCategoryName(item.sport_id) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {{ item.updated_at }}
@@ -521,7 +521,7 @@ export default {
         id: null,
         name: "",
         price: 0,
-        category: "",
+        sport_id: "",
         updated_at: "",
         image: null,
       },
@@ -534,7 +534,7 @@ export default {
 
       newEquipment: {
         name: "",
-        category: "",
+        sport_id: "",
         price: "",
         updated_at: new Date().toISOString().slice(0, 10), // yyyy‑mm‑dd
       },
@@ -576,7 +576,7 @@ export default {
   },
 
   async created() {
-    const storedEquipment = localStorage.getItem('equipment');
+    const storedEquipment = localStorage.getItem("equipment");
     if (storedEquipment) {
       this.equipment = JSON.parse(storedEquipment);
     } else {
@@ -605,25 +605,26 @@ export default {
     },
 
     openAddDialog() {
-      // reset the form then open
-      this.isEditMode = false;
-      // this.showDeleteDialog = true;
       this.selectedEquipment = {
         id: null,
         name: "",
-        sport_id: "",
+        categoryId: null, // Initialize categoryId here
         price: 0,
         updated_at: new Date().toISOString().slice(0, 10),
       };
       this.showAddDialog = true;
+      this.imagePreview = null; // Clear the previous image preview
     },
 
     openEditDialog(item) {
       this.isEditMode = true;
-      this.selectedEquipment = { ...item };
+      this.selectedEquipment = {
+        ...item,
+        categoryId: item.sport_id, // Set the current category ID for editing
+      };
       this.imagePreview = item.image || null;
-      this.selectedImage = null;
-      this.showAddDialog = true;
+      this.selectedImage = null; // Clear any previously selected image
+      this.showAddDialog = true; // Open the dialog
     },
 
     closeAddEditDialog() {
@@ -637,47 +638,65 @@ export default {
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        this.selectedImage = file;
-        this.imagePreview = URL.createObjectURL(file);
+        const reader = new FileReader();
+
+        // Convert the file to a base64 string
+        reader.onloadend = () => {
+          // Store the base64 string in localStorage
+          localStorage.setItem("uploadedImage", reader.result);
+
+          // Optionally, set the imagePreview for immediate display
+          this.imagePreview = reader.result; // or use URL.createObjectURL(file) instead
+        };
+
+        // Read the file as a Data URL
+        reader.readAsDataURL(file);
+      }
+    },
+    loadImage() {
+      const storedImage = localStorage.getItem("uploadedImage");
+      if (storedImage) {
+        this.imagePreview = storedImage; // Set for display
       }
     },
 
-    // addEquipment() {
-    //   const nextId =
-    //     this.equipment.length > 0
-    //       ? Math.max(...this.equipment.map((e) => e.id)) + 1
-    //       : 1;
-    //   this.equipment.push({
-    //     id: nextId,
-    //     ...this.newEquipment,
-    //   });
-    //   this.closeAddDialog();
-    // },
+    clearImage() {
+      localStorage.removeItem("uploadedImage");
+      this.imagePreview = null; // Clear the preview
+    },
 
     confirmAddEdit() {
+      const newId = this.equipment.length
+        ? Math.max(...this.equipment.map((e) => e.id)) + 1
+        : 1;
+
       if (this.isEditMode) {
         const index = this.equipment.findIndex(
           (e) => e.id === this.selectedEquipment.id
         );
-        if (index !== -1)
+        if (index !== -1) {
           this.equipment[index] = {
             ...this.selectedEquipment,
             image: this.imagePreview || this.equipment[index].image,
+            sport_id: this.selectedEquipment.categoryId,
           };
+        }
       } else {
-        const newId = this.equipment.length
-          ? Math.max(...this.equipment.map((e) => e.id)) + 1
-          : 1;
         this.equipment.push({
           ...this.selectedEquipment,
           id: newId,
           image: this.imagePreview,
+          sport_id: this.selectedEquipment.categoryId, // Ensure this is set correctly
           updated_at: new Date().toISOString().slice(0, 10),
         });
       }
+      console.log("Selected Equipment for Editing:", this.selectedEquipment);
       // Save to localStorage
-      localStorage.setItem('equipment', JSON.stringify(this.equipment));
+      localStorage.setItem("equipment", JSON.stringify(this.equipment));
       this.closeAddEditDialog();
+
+      // Reload the image from localStorage
+      this.loadImage();
     },
 
     openDeleteDialog(item) {
@@ -694,9 +713,25 @@ export default {
         (e) => e.id !== this.selectedEquipment.id
       );
       // Update localStorage after deletion
-      localStorage.setItem('equipment', JSON.stringify(this.equipment));
+      localStorage.setItem("equipment", JSON.stringify(this.equipment));
       this.closeDeleteDialog();
     },
+
+    getCategoryName(sportId) {
+      // console.log("Sport ID:", sportId);
+      const category = this.categories.find((cat) => cat.id === sportId);
+      // console.log("Found Category:", category);
+      return category ? category.name : "Unknown";
+    },
+
+    async fetchCategories() {
+      const response = await AdminEquimentService.fetchCategories();
+      this.categories = response; // Assign the fetched categories
+    },
+  },
+  mounted() {
+    this.loadImage();
+    this.fetchCategories(); // Load the image when the component is mounted
   },
 };
 </script>
