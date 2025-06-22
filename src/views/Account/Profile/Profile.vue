@@ -41,7 +41,14 @@
                 <i class="fas fa-phone"></i>
                 <span>{{ phone }}</span>
               </div>
-              <div class="flex justify-between">
+              <div v-if="phone2">
+                  <div class="info-title">Phone 2:</div>
+                  <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>{{ phone2 }}</span>
+                  </div>
+              </div>
+                <div class="flex justify-between">
                 <button class="update-btn" @click="openEditModal">Edit Profile</button>
                 <button class="update-btn" @click="isChangingPassword = true">Change Password</button>
               </div>
@@ -67,6 +74,11 @@
           <label for="edit-phone">Phone:</label>
           <input id="edit-phone" v-model="editedPhone" type="tel" />
         </div>
+        <div class="form-group">
+          <label for="edit-phone2">Phone 2:</label>
+          <input id="edit-phone2" v-model="editedPhone2" type="tel" />
+        </div>
+
         <div class="modal-buttons">
           <button @click="saveProfile" class="save-btn">Save</button>
           <button @click="closeEditModal" class="cancel-btn">Cancel</button>
@@ -128,10 +140,13 @@ export default {
       name: "", // Will be populated from localStorage
       email: "", // Will be populated from localStorage
       phone: "", // Will be populated from localStorage
+      phone2: "",
       isEditing: false,
       editedUsername: "",
       editedEmail: "",
       editedPhone: "",
+      editedPhone2: "",
+
       isChangingPassword: false,
       passwordForm: {
         current_password: '',
@@ -154,6 +169,7 @@ export default {
       this.name = user.name || "Nay Sovannarith"; // Fallback to default if name is not available
       this.email = user.email || "narith2004@gmail.com"; // Fallback to default if email is not available
       this.phone = user.phone || "012345678"; // Fallback to default if phone is not available
+      this.phone2 = user.phone2 || "";
       this.avatar = user.avatar?.startsWith('data:image') || user.avatar?.startsWith('http')
         ? user.avatar
         : this.fileUrl + user.avatar;
@@ -166,6 +182,8 @@ export default {
       this.editedUsername = this.name;
       this.editedEmail = this.email;
       this.editedPhone = this.phone;
+      this.editedPhone2 = this.phone2;
+
       this.editedAvatar = this.avatar;
     },
     closeEditModal() {
@@ -185,6 +203,7 @@ export default {
           name: this.editedUsername,
           email: this.editedEmail,
           phone: this.editedPhone,
+           phone2: this.editedPhone2,
           avatar: this.editedAvatar?.startsWith('data:image') ? this.editedAvatar : undefined
         };
 
@@ -201,6 +220,7 @@ export default {
         this.name = user.name;
         this.email = user.email;
         this.phone = user.phone;
+        this.phone2 = user.phone2; 
         this.showSnackbar('✅ Profile updated successfully!', 'success');
         this.closeEditModal();
 
