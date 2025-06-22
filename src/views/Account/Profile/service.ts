@@ -47,6 +47,22 @@ export class ProfileService {
         throw error;
       });
   }
+  /**
+ * Change user password.
+ * @param passwordData - The password payload.
+ */
+  changePassword(passwordData: {
+    current_password: string;
+    new_password: string;
+    confirm_password: string;
+  }) {
+    return this.http.put('/profile/update-password', passwordData)
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Change Password Error:', error.response || error);
+        throw error;
+      });
+  }
 }
 
 export default new ProfileService();

@@ -41,8 +41,9 @@
                 <i class="fas fa-phone"></i>
                 <span>{{ phone }}</span>
               </div>
-              <div>
+              <div class="flex justify-between">
                 <button class="update-btn" @click="openEditModal">Edit Profile</button>
+                <button class="update-btn" @click="isChangingPassword = true">Change Password</button>
               </div>
             </div>
           </div>
@@ -73,6 +74,44 @@
       </div>
     </div>
   </div>
+  <!-- Change Password Modal -->
+  <!-- <div v-if="isChangingPassword" class="modal">
+    <div class="modal-content">
+      <h2>Change Password</h2>
+      <div class="form-group">
+        <label for="current-password"></label>
+        <input id="current-password" type="password" v-model="passwordForm.current_password" />
+      </div>
+      <div class="form-group">
+        <label for="new-password">New Password:</label>
+        <input id="new-password" type="password" v-model="passwordForm.new_password" />
+      </div>
+      <div class="form-group">
+        <label for="confirm-password">Confirm Password:</label>
+        <input id="confirm-password" type="password" v-model="passwordForm.confirm_password" />
+      </div>
+      <div class="modal-buttons">
+        <button class="save-btn" @click="changePassword">Save</button>
+        <button class="cancel-btn" @click="isChangingPassword = false">Cancel</button>
+      </div>
+    </div>
+  </div> -->
+<!-- Snackbar -->
+<transition name="fade-slide">
+  <div
+    v-if="snackbar.show"
+    :class="[
+      'fixed bottom-6 left-1/2 transform -translate-x-1/2 px-6 py-4 text-sm font-medium text-white shadow-xl transition-all duration-300 ease-in-out z-[9999]',
+      snackbar.type === 'success' ? 'bg-green-500' : 'bg-red-500',
+      'rounded-2xl'
+    ]"
+  >
+    {{ snackbar.message }}
+  </div>
+</transition>
+
+
+
 </template>
 
 <script>
@@ -95,6 +134,17 @@ export default {
       editedUsername: "",
       editedEmail: "",
       editedPhone: "",
+      isChangingPassword: false,
+      passwordForm: {
+        current_password: '',
+        new_password: '',
+        confirm_password: ''
+      },
+      snackbar: {
+        show: false,
+        message: '',
+        type: 'success' // 'success' | 'error'
+      }
     };
   },
   created() {
@@ -106,7 +156,10 @@ export default {
       this.name = user.name || "Nay Sovannarith"; // Fallback to default if name is not available
       this.email = user.email || "narith2004@gmail.com"; // Fallback to default if email is not available
       this.phone = user.phone || "012345678"; // Fallback to default if phone is not available
-      this.avatar = this.fileUrl + user.avatar || this.avatar; // Use the avatar from localStorage or fallback to default
+      this.avatar = user.avatar?.startsWith('data:image') || user.avatar?.startsWith('http')
+        ? user.avatar
+        : this.fileUrl + user.avatar;
+      // Use the avatar from localStorage or fallback to default
     }
   },
   methods: {
@@ -115,258 +168,339 @@ export default {
       this.editedUsername = this.name;
       this.editedEmail = this.email;
       this.editedPhone = this.phone;
+      this.editedAvatar = this.avatar;
     },
     closeEditModal() {
       this.isEditing = false;
     },
+    showSnackbar(message, type = 'success') {
+      this.snackbar.message = message;
+      this.snackbar.type = type;
+      this.snackbar.show = true;
+      setTimeout(() => {
+        this.snackbar.show = false;
+      }, 3000); // Hide after 3 seconds
+    },
     async saveProfile() {
       try {
-        // Prepare the updated profile data
         const updatedProfile = {
           name: this.editedUsername,
           email: this.editedEmail,
           phone: this.editedPhone,
+          avatar: this.editedAvatar?.startsWith('data:image') ? this.editedAvatar : undefined
         };
 
-        // Call the updateProfile method from ProfileService
         const response = await ProfileService.updateProfile(updatedProfile);
         const token = response.data.access_token;
         const user = response.data.user;
 
-        // Store token, role, and user in localStorage
         localStorage.setItem('Token', token);
-        localStorage.setItem('user', JSON.stringify(user)); // Store user as a JSON string
+        localStorage.setItem('user', JSON.stringify(user));
 
-        // Update the component data
-        this.avatar = this.fileUrl + user.avatar;
-        this.name  = user.name;
+        this.avatar = user.avatar.startsWith('data:image') || user.avatar.startsWith('http')
+          ? user.avatar
+          : this.fileUrl + user.avatar;
+        this.name = user.name;
         this.email = user.email;
         this.phone = user.phone;
-
+        this.showSnackbar('✅ Profile updated successfully!', 'success');
         this.closeEditModal();
-        alert('Profile updated successfully!');
+
       } catch (error) {
         console.error('Failed to update profile:', error);
         alert('Failed to update profile. Please try again.');
       }
     },
+
+    // async handleImageUpload(event) {
+    //   const file = event.target.files[0];
+    //   if (file) {
+    //     const reader = new FileReader();
+    //     reader.onload = async (e) => {
+    //       // Convert the image to Base64
+    //       const base64Image = e.target.result;
+
+    //       // Update the avatar in the component
+    //       this.avatar = base64Image;
+
+    //       try {
+    //         // Call the updateProfile method from ProfileService to upload the image
+    //         const response = await ProfileService.updateProfile({ name: this.name, email: this.email, phone: this.phone ,avatar: base64Image });
+    //         const token = response.data.access_token;
+    //         const user = response.data.user;
+
+    //         // Store token, role, and user in localStorage
+    //         localStorage.setItem('Token', token);
+    //         localStorage.setItem('user', JSON.stringify(user)); // Store user as a JSON string
+    //         // Update the component data
+    //         this.avatar = this.fileUrl + user.avatar;
+    //         this.name  = user.name;
+    //         this.email = user.email;
+    //         this.phone = user.phone;
+    //       } catch (error) {
+    //         console.error('Failed to update profile image:', error);
+    //         alert('Failed to update profile image. Please try again.');
+    //       }
+    //     };
+    //     reader.readAsDataURL(file);
+    //   }
+    // },
     async handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = async (e) => {
-          // Convert the image to Base64
           const base64Image = e.target.result;
-
-          // Update the avatar in the component
           this.avatar = base64Image;
+          this.editedAvatar = base64Image;
 
           try {
-            // Call the updateProfile method from ProfileService to upload the image
-            const response = await ProfileService.updateProfile({ name: this.name, email: this.email, phone: this.phone ,avatar: base64Image });
+            const updatedProfile = {
+              name: this.name,
+              email: this.email,
+              phone: this.phone,
+              avatar: base64Image
+            };
+
+            const response = await ProfileService.updateProfile(updatedProfile);
             const token = response.data.access_token;
             const user = response.data.user;
 
-            // Store token, role, and user in localStorage
             localStorage.setItem('Token', token);
-            localStorage.setItem('user', JSON.stringify(user)); // Store user as a JSON string
-            // Update the component data
-            this.avatar = this.fileUrl + user.avatar;
-            this.name  = user.name;
+            localStorage.setItem('user', JSON.stringify(user));
+
+            this.name = user.name;
             this.email = user.email;
             this.phone = user.phone;
+            this.avatar = user.avatar.startsWith('data:image') || user.avatar.startsWith('http')
+              ? user.avatar
+              : this.fileUrl + user.avatar;
+            this.showSnackbar('✅ Profile image updated successfully!', 'success');
           } catch (error) {
-            console.error('Failed to update profile image:', error);
-            alert('Failed to update profile image. Please try again.');
+            console.error('Image upload failed:', error);
+            alert('❌ Failed to update profile image');
           }
         };
         reader.readAsDataURL(file);
       }
     },
+
+    async changePassword() {
+      try {
+        await ProfileService.changePassword(this.passwordForm);
+
+        this.showSnackbar('✅ Password updated successfully!', 'success');
+
+        this.isChangingPassword = false;
+        this.passwordForm = {
+          current_password: '',
+          new_password: '',
+          confirm_password: ''
+        };
+      } catch (error) {
+        this.showSnackbar('❌ Failed to update password. Check your current password or try again.', 'error');
+      }
+    }
+
   },
 };
 </script>
 
 <style scoped>
-/* Profile Section */
+/* Layout */
 .page {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 2rem;
+  background-color: #f3f4f6;
   min-height: 100vh;
-  background-color: #f9f9f9;
-  padding: 20px;
 }
 
 .profile-section {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1;
+  width: 100%;
 }
 
+/* Card */
 .profile-card {
-  width: 800px;
-  padding: 20px;
-  border-radius: 10px;
-  background-color: rgb(255, 255, 255);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 850px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Title */
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #1f2937;
   text-align: center;
 }
 
-.title {
-  font-size: 30px;
-  font-weight: bold;
-  margin-bottom: 20px;
-  color: #000000;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-}
-
+/* Profile Content */
 .profile-content {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  gap: 2rem;
 }
 
 .profile-left {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px;
+  text-align: center;
 }
 
 .profile-image {
-  width: 250px;
-  height: 250px;
+  width: 220px;
+  height: 220px;
   object-fit: cover;
-  margin-bottom: 15px;
-  border-radius: 50%;
+  border-radius: 9999px;
+  border: 3px solid #e5e7eb;
+  margin-bottom: 1rem;
 }
 
 .upload-image-btn {
-  padding: 10px 20px;
-  font-size: 1em;
+  background-color: #4b5563;
   color: white;
-  background-color: #78716c;
+  padding: 0.6rem 1.25rem;
+  font-size: 1rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .upload-image-btn:hover {
-  background-color: #453e3e;
+  background-color: #374151;
 }
 
 .profile-right {
-  flex: 1.5;
-  padding-left: 20px;
+  flex: 2;
 }
 
+/* Info Display */
 .info-title {
-  font-size: 1.1em;
-  font-weight: bold;
-  margin-bottom: 5px;
-  color: #000000;
-  margin-right: 100%;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.25rem;
+  color: #111827;
 }
 
 .info-item {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 10px 15px;
-  margin-bottom: 15px;
-  font-size: 0.95em;
-  color: #555;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #374151;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .info-item i {
-  margin-right: 10px;
-  color: #888;
+  color: #9ca3af;
 }
 
+/* Buttons */
 .update-btn {
-  padding: 10px 20px;
-  background-color: #78716c;
+  background-color: #6b7280;
   color: white;
+  padding: 0.6rem 1.5rem;
+  margin-top: 0.5rem;
+  border-radius: 6px;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 .update-btn:hover {
-  background-color: #453e3e;
+  background-color: #4b5563;
 }
 
-/* Modal Styles */
+/* Modal */
 .modal {
   position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 999;
 }
 
 .modal-content {
   background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  font-weight: 500;
+  margin-bottom: 0.4rem;
 }
 
 .form-group input {
   width: 100%;
-  padding: 5px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
 }
 
+/* Modal Buttons */
 .modal-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
+  margin-top: 1.5rem;
+}
+
+.save-btn, .cancel-btn {
+  flex: 1;
+  padding: 0.6rem 0;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  margin: 0 4px;
+  cursor: pointer;
 }
 
 .save-btn {
-  background-color: #28a745;
-  color: white;
-  width: 30%;
-  border-radius: 5px;
+  background-color: #10b981;
+}
+
+.save-btn:hover {
+  background-color: #059669;
 }
 
 .cancel-btn {
-  background-color: #dc3545;
-  color: white;
-  width: 30%;
-  border-radius: 5px;
+  background-color: #ef4444;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .profile-card {
-    width: 100%;
-    padding: 15px;
-  }
+.cancel-btn:hover {
+  background-color: #dc2626;
+}
 
+/* Responsive */
+@media (max-width: 768px) {
   .profile-content {
     flex-direction: column;
     align-items: center;
@@ -377,26 +511,8 @@ export default {
   }
 
   .profile-image {
-    width: 200px;
-    height: 200px;
-  }
-}
-
-@media (max-width: 480px) {
-  .title {
-    font-size: 24px;
-  }
-
-  .info-item {
-    font-size: 0.85em;
-  }
-
-  .update-btn {
-    padding: 8px 16px;
-  }
-
-  .upload-image-btn {
-    padding: 8px 16px;
+    width: 180px;
+    height: 180px;
   }
 }
 </style>
