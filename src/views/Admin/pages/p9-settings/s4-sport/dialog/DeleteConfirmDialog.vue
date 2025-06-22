@@ -22,7 +22,7 @@
       
       <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
         <p class="text-red-800 text-sm">
-          <strong>Warning:</strong> This action cannot be undone. All user data will be permanently deleted.
+          <strong>Warning:</strong> This action cannot be undone. All user  will be permanently deleted.
         </p>
       </div>
       
