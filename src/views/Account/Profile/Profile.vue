@@ -75,27 +75,25 @@
     </div>
   </div>
   <!-- Change Password Modal -->
-  <!-- <div v-if="isChangingPassword" class="modal">
-    <div class="modal-content">
-      <h2>Change Password</h2>
-      <div class="form-group">
-        <label for="current-password"></label>
-        <input id="current-password" type="password" v-model="passwordForm.current_password" />
-      </div>
-      <div class="form-group">
-        <label for="new-password">New Password:</label>
-        <input id="new-password" type="password" v-model="passwordForm.new_password" />
-      </div>
-      <div class="form-group">
-        <label for="confirm-password">Confirm Password:</label>
-        <input id="confirm-password" type="password" v-model="passwordForm.confirm_password" />
-      </div>
-      <div class="modal-buttons">
-        <button class="save-btn" @click="changePassword">Save</button>
-        <button class="cancel-btn" @click="isChangingPassword = false">Cancel</button>
-      </div>
+  <!-- Change Password Modal -->
+<div v-if="isChangingPassword" class="modal">
+  <div class="modal-content">
+    <h2>Change Password</h2>
+    <div class="form-group">
+      <label for="new-password">New Password:</label>
+      <input id="new-password" type="password" v-model="passwordForm.password" />
     </div>
-  </div> -->
+    <div class="form-group">
+      <label for="confirm-password">Confirm Password:</label>
+      <input id="confirm-password" type="password" v-model="passwordForm.confirm_password" />
+    </div>
+    <div class="modal-buttons">
+      <button class="save-btn" @click="changePassword">Save</button>
+      <button class="cancel-btn" @click="isChangingPassword = false">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- Snackbar -->
 <transition name="fade-slide">
   <div
@@ -287,20 +285,32 @@ export default {
 
     async changePassword() {
       try {
+        if (!this.passwordForm.password || !this.passwordForm.confirm_password) {
+          this.showSnackbar('❌ Please fill out both password fields.', 'error');
+          return;
+        }
+
+        if (this.passwordForm.password !== this.passwordForm.confirm_password) {
+          this.showSnackbar('❌ Passwords do not match.', 'error');
+          return;
+        }
+
         await ProfileService.changePassword(this.passwordForm);
 
         this.showSnackbar('✅ Password updated successfully!', 'success');
 
+        // Reset and close modal
         this.isChangingPassword = false;
         this.passwordForm = {
-          current_password: '',
-          new_password: '',
+          password: '',
           confirm_password: ''
         };
       } catch (error) {
-        this.showSnackbar('❌ Failed to update password. Check your current password or try again.', 'error');
+        console.error(error);
+        this.showSnackbar('❌ Failed to update password. Please try again.', 'error');
       }
     }
+
 
   },
 };
