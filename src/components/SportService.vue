@@ -57,9 +57,12 @@
               </div>
             </div>
             
-            <button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition-colors duration-200">
+            <router-link 
+              :to="{ name: 'VenueBooking', params: { id: sport.title.toLowerCase().replace(/\s+/g, '-') } }"
+              class="block w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition-colors duration-200 text-center"
+            >
               Book This Venue
-            </button>
+            </router-link>
           </div>
         </div>
       </div>
