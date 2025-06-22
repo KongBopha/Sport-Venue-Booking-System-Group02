@@ -1,215 +1,234 @@
+<script>
+import http from '@/API/axiosInstance';
+
+export default {
+  name: 'Carousel',
+  data() {
+    return {
+      equipmentData: {},
+      showModal: false,
+      selectedItem: null,
+      selectedQuantity: 1,
+      selectedPayment: '',
+      qrImages: {
+        1: '/images/qr_aba.jpg',      // Assuming id=1 is ABA
+        2: '/images/qr_acleda.jpg',   // id=2 ACLEDA
+        3: '/images/qr_cash.jpg'      // id=3 CASH or no QR
+      },
+      showSuccessDialog: false,
+      paymentMethods: []  // empty, will fetch dynamically
+    };
+  },
+  mounted() {
+    this.fetchEquipments();
+    this.fetchPaymentMethods();
+  },
+  methods: {
+    fetchEquipments() {
+      http.get('/public/home')
+        .then(response => {
+          this.equipmentData = response.data?.data || {};
+        })
+        .catch(err => {
+          console.error('❌ Equipment fetch error:', err.response?.data || err.message);
+        });
+    },
+    fetchPaymentMethods() {
+      http.get('/user/equipments/data-setup')
+        .then(response => {
+          // response.data.data.payments_method based on your backend response structure
+          this.paymentMethods = response.data?.data?.payments_method || [];
+        })
+        .catch(err => {
+          console.error('❌ Payment methods fetch error:', err.response?.data || err.message);
+          // fallback to default if you want
+          // this.paymentMethods = [...];
+        });
+    },
+    openModal(item) {
+      this.selectedItem = item;
+      this.selectedQuantity = 1;
+      this.selectedPayment = '';
+      this.showModal = true;
+    },
+    async confirmPurchase() {
+      if (!this.selectedPayment) {
+        alert('Please select a payment method.');
+        return;
+      }
+
+      const payload = {
+        equipments_id: this.selectedItem.id,
+        qty: this.selectedQuantity,
+        payment_method_id: this.selectedPayment
+      };
+
+      try {
+        const res = await http.post('/user/equipments', payload);
+        console.log("✅ Backend response:", res.data);
+        this.showModal = false;
+        this.showSuccessDialog = true;
+      } catch (error) {
+        console.error('❌ Purchase error:', error?.response?.data || error.message);
+        alert('❌ ' + (error?.response?.data?.message || 'Internal Server Error'));
+      }
+    }
+  },
+  computed: {
+    totalPrice() {
+      return this.selectedItem ? this.selectedItem.price * this.selectedQuantity : 0;
+    },
+    qrImage() {
+      return this.qrImages[this.selectedPayment] || '';
+    }
+  }
+};
+</script>
+
+
 <template>
-  <div>
-    <div class="text-3xl ml-10 my-10">Football</div>
-    <div class="carousel rounded-box w-[118rem]">
-      <div class="carousel-items flex overflow-x-auto">
+  <div class="space-y-20 px-8 py-12 bg-white">
+    <div v-for="(items, sport) in equipmentData" :key="sport">
+      <h2 class="text-4xl font-bold text-teal-600 mb-10 text-center">{{ sport }}</h2>
+      <!-- equipment card carousel -->
+<div class="w-full flex justify-center">
+  <div class="w-[1300px] h-full max-w-full px-4">
+    <div class="overflow-x-auto">
+      <div class="flex space-x-6 pb-2 scrollbar-thin snap-x snap-mandatory">
         <div
-          class="carousel-item ml-[2rem] flex flex-column"
-          v-for="(football, index) in football_equipments"
+          v-for="(item, index) in equipmentData[sport]"
           :key="index"
+          class="flex-shrink-0 snap-start w-72"
         >
           <div
-            class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
+            class="bg-white border border-gray-200 rounded-xl shadow hover:shadow-lg transition duration-300 cursor-pointer"
+            @click="openModal(item)"
           >
-            <a href="#">
-              <img
-                class="h-[13rem] w-full p-8 rounded-t-lg"
-                :src="football.image"
-                alt="image of football"
-              />
-            </a>
-            <div class="px-5 pb-5">
-              <span class="text-3xl font-bold text-gray-900 dark:text-white"
-                >${{ football.price }}</span
-              >
-              <a href="#">
-                <h5
-                  class="text-lg font-semibold tracking-tight text-gray-900 dark:text-white"
-                >
-                  {{ football.name }}
-                </h5>
-              </a>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center mt-2.5 mb-5"></div>
-                <a
-                  href="#"
-                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >Add to cart</a
-                >
-              </div>
+          <img
+            :src="`/images/${item.image}`"
+            alt="equipment image"
+            class="h-60 w-full object-cover rounded-t-xl"
+          />
+
+            <div class="p-4">
+              <p class="text-xl font-bold text-gray-800">${{ item.price }}</p>
+              <p class="text-gray-600 mt-1 mb-3">{{ item.name }}</p>
+              <p class="text-sm text-teal-600 hover:underline font-medium">Click to buy</p>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div>
-    <div class="text-3xl ml-10 my-10">Volleyball</div>
-    <div class="carousel rounded-box w-[118rem]">
-      <div class="carousel-items flex overflow-x-auto">
-        <div
-          class="carousel-item ml-[2rem] flex flex-column"
-          v-for="(volleyball, index) in volleyball_equipments"
-          :key="index"
-        >
-          <div
-            class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
-          >
-            <a href="#">
-              <img
-                class="h-[13rem] w-full p-8 rounded-t-lg"
-                :src="volleyball.image"
-                alt="image of volleyball"
-              />
-            </a>
-            <div class="px-5 pb-5">
-              <span class="text-3xl font-bold text-gray-900 dark:text-white"
-                >${{ volleyball.price }}</span
-              >
-              <a href="#">
-                <h5
-                  class="text-lg font-semibold tracking-tight text-gray-900 dark:text-white"
-                >
-                  {{ volleyball.name }}
-                </h5>
-              </a>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center mt-2.5 mb-5">
-                  <div class="flex items-center space-x-1 rtl:space-x-reverse">
-                    <!-- Star Rating SVGs Here -->
-                  </div>
-                </div>
-                <a
-                  href="#"
-                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >Add to cart</a
-                >
-              </div>
-            </div>
+</div>
+    <!-- Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-gray-100/20 z-50 flex items-center justify-center px-4">
+      <div class="bg-white rounded-xl w-full max-w-lg p-6 shadow-xl relative">
+        <!-- Close button -->
+        <button
+          @click="showModal = false"
+          class="absolute top-4 right-4 text-gray-400 hover:text-teal-600 text-2xl"
+        >×</button>
+
+        <h2 class="text-2xl font-bold text-teal-700 mb-5">Buy Equipment</h2>
+
+        <div class="space-y-2 mb-6">
+          <div class="flex justify-between">
+            <p class="text-gray-800 font-medium ">Item: {{ selectedItem?.name }}</p>
+          <img
+              :src="selectedItem ? `/images/${selectedItem.image}` : ''"
+              alt="equipment image"
+              class="h-16 w-16 object-cover rounded-t-xl"
+            />
           </div>
+          <p class="text-gray-800 font-medium">Description: {{ selectedItem?.description }}</p>
+          <p class="text-gray-600">Price: ${{ selectedItem?.price }}</p>
+          
+
         </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Quantity</label>
+          <input
+            v-model.number="selectedQuantity"
+            type="number"
+            min="1"
+            class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+          />
+           <p class="text-gray-600">Total Price: ${{ totalPrice }}</p>
+        </div>
+
+<div class="mb-5">
+  <label for="payment-method" class="block text-sm font-semibold text-gray-700 mb-2">
+    Select Payment Method:
+  </label>
+  <select
+    id="payment-method"
+    v-model.number="selectedPayment"
+    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
+    required
+  >
+    <option value="" disabled>Select a payment method</option>
+    <option
+      v-for="method in paymentMethods"
+      :key="method.id"
+      :value="method.id"
+    >
+      {{ method.name }}
+    </option>
+  </select>
+</div>
+
+<!-- Show QR only if payment method has QR -->
+<div v-if="qrImage" class="mb-5 text-center">
+  <p class="text-sm text-gray-500 mb-2">
+    Scan this QR with {{ paymentMethods.find(pm => pm.id === selectedPayment)?.name }} App:
+  </p>
+  <img :src="qrImage" alt="Payment QR Code" class="w-40 mx-auto border rounded-md" />
+</div>
+
+        <div v-if="selectedPayment === 'ABA'" class="mb-5 text- center">
+          <p class="text-sm text-gray-500 mb-2">Scan this QR with ABA App:</p>
+          <img :src="qrImage.jpg" alt="ABA QR Code" class="w-40 mx-auto border rounded-md" />
+        </div>
+        <div class="flex justify-between">
+          <div>
+          <button
+            @click="confirmPurchase"
+            class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg font-semibold transition"
+          >
+            Confirm Purchase
+          </button>
+        </div>
+        </div>
+
       </div>
     </div>
+    <!-- Success Dialog -->
+<div v-if="showSuccessDialog" class="fixed inset-0 bg-black/30 z-50 flex items-center justify-center px-4">
+  <div class="bg-white rounded-xl max-w-md w-full p-6 text-center shadow-xl">
+    <h3 class="text-2xl font-bold text-green-600 mb-3">Purchase Successful!</h3>
+    <p class="text-gray-700 mb-4">Your equipment purchase is pending admin confirmation.</p>
+    <button
+      @click="showSuccessDialog = false"
+      class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg font-semibold"
+    >
+      Close
+    </button>
   </div>
-  <div>
-    <div class="text-3xl ml-10 my-10">Table Tennis</div>
-    <div class="carousel rounded-box w-[118rem]">
-      <div class="carousel-items flex overflow-x-auto">
-        <div
-          class="carousel-item ml-[2rem] flex flex-column"
-          v-for="(tennis, index) in tennis_equipments"
-          :key="index"
-        >
-          <div
-            class="w-full max-w-sm bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700"
-          >
-            <a href="#">
-              <img
-                class="h-[13rem] w-full p-8 rounded-t-lg"
-                :src="tennis.image"
-                alt="image of tennis table"
-              />
-            </a>
-            <div class="px-5 pb-5">
-              <span class="text-3xl font-bold text-gray-900 dark:text-white"
-                >${{ tennis.price }}</span
-              >
-              <a href="#">
-                <h5
-                  class="text-lg font-semibold tracking-tight text-gray-900 dark:text-white"
-                >
-                  {{ tennis.name }}
-                </h5>
-              </a>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center mt-2.5 mb-5">
-                  <div class="flex items-center space-x-1 rtl:space-x-reverse">
-                    <!-- Star Rating SVGs Here -->
-                  </div>
-                </div>
-                <a
-                  href="#"
-                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >Add to cart</a
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+</div>
+
+  </div>
   </div>
 </template>
 
 <style scoped>
-.carousel-items {
-  display: flex; /* Use flexbox for horizontal layout */
-  overflow-x: auto; /* Enable horizontal scrolling */
-  /* overflow: hidden; */
-  gap: 2rem; /* Optional: Add space between items */
-  margin-left: 4.5rem;
-  width: 92%;
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
 }
-.carousel-items::-webkit-scrollbar {
-  width: 0; /* Hides the scrollbar */
-}
-.carousel-item {
-  flex: 0 0 auto; /* Prevent flex items from shrinking */
-  width: 20rem; /* Set a fixed width for each item */
-}
-.carousel-item:hover {
-  text-shadow: 0px 0px 6px rgba(255, 255, 255, 1);
-  -webkit-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
-  -moz-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
-  transition: all 0.4s ease 0s;
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #14b8a6; 
+  border-radius: 10px;
 }
 </style>
 
-<script>
-// import ball1 from "@/assets/images/ball1.webp";
-// import ball2 from "@/assets/images/ball2.jpeg";
-// import ball3 from "@/assets/images/ball3.webp";
-// import ball4 from "@/assets/images/ball4.jpg";
-// import soccer1 from "@/assets/images/soccer1.jpg";
-// import soccer2 from "@/assets/images/soccer2.webp";
-// import shoes1 from "@/assets/images/shoes2.avif";
-// import shoes2 from "@/assets/images/shoes6.avif";
-// import shoes3 from "@/assets/images/shoes6.webp";
-// import shoes4 from "@/assets/images/shoes7.webp";
-// import uniforn1 from "@/assets/images/unifrom4.jpg";
-// import uniform2 from "@/assets/images/uniform6.jpg";
-// import uniform3 from "@/assets/images/unifrom8.webp";
-// import uniform4 from "@/assets/images/uniform9.webp";
-// import uniform5 from "@/assets/images/uniform10.webp";
-// import uniform6 from "@/assets/images/uniform11.webp";
-// import table1 from "@/assets/images/table1.webp";
-// import table2 from "@/assets/images/table2.webp";
-// import { ssrImportKey } from "vite/module-runner";
-// import Vue from 'vue';
-// import axios from "axios";
-// import VueAxios from "vue-axios";
-// import axios from "axios";
-// import { data } from 'autoprefixer';
-// import axios from 'axios';
-// import path from 'path-browserify';
-export default {
-    name: 'Carousel',
-    data() {
-        return {
-            football_equipments: [],
-            volleyball_equipments: [],
-            tennis_equipments: []
-        };
-    },
-    mounted() {
-        fetch('http://localhost:1000/api/public/home')
-        .then(res=>res.json())
-        .then(respone =>{
-          this.football_equipments = respone.data.football_equipments;
-          this.volleyball_equipments = respone.data.volleyball_equipments;
-          this.tennis_equipments = respone.data.tennis_equipments;
-        })
-        .catch(err=>console.log(err.message))
-    },
-};
-</script>

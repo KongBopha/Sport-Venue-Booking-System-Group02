@@ -128,7 +128,6 @@
 import Navbar from '@/components/Navbar.vue';
 import ProfileService from './service';
 
-
 export default {
     components: {
       Navbar
