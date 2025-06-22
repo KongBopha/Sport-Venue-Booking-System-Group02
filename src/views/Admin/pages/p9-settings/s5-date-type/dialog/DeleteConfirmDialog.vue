@@ -13,7 +13,7 @@
           <AlertTriangle class="w-6 h-6 text-red-600" />
         </div>
         <div>
-          <p class="text-gray-800 font-medium">Are you sure you want to delete this pitch category?</p>
+          <p class="text-gray-800 font-medium">Are you sure you want to delete this date type?</p>
           <p class="text-gray-600 text-sm mt-1">
             <strong>{{ userToDelete?.name }}</strong> will be permanently removed.
           </p>
@@ -22,7 +22,7 @@
       
       <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-6">
         <p class="text-red-800 text-sm">
-          <strong>Warning:</strong> This action cannot be undone. All user data will be permanently deleted.
+         <strong>{{ itemToDelete?.day }}</strong> This action cannot be undone. All user data will be permanently deleted.
         </p>
       </div>
       
@@ -42,7 +42,7 @@
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
             Deleting...
           </span>
-          <span v-else>Delete Pitch Category</span>
+          <span v-else>Delete date type</span>
         </button>
       </div>
     </div>
@@ -62,7 +62,7 @@ export default {
       type: Boolean,
       default: false
     },
-    userToDelete: {
+    itemToDelete: {
       type: Object,
       default: null
     },
@@ -71,13 +71,15 @@ export default {
       default: false
     }
   },
+
   emits: ['close', 'confirm-delete'],
   methods: {
     closeDialog() {
       this.$emit('close')
     },
     confirmDelete() {
-      this.$emit('confirm-delete', this.userToDelete)
+      this.$emit('confirm-delete', this.itemToDelete)
+
     }
   }
 }
