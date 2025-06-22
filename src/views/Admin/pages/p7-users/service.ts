@@ -44,7 +44,7 @@ export class AdminUserService {
         case 401:
           // Unauthorized - redirect to login or refresh token
           localStorage.removeItem('Token');
-          window.location.href = '/login';
+          window.location.href = 'auth/login';
           break;
         case 403:
           console.error('Access forbidden');
