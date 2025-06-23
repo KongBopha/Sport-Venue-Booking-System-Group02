@@ -7,15 +7,18 @@
       </div>
       <div class="flex-right">
         <ContactForm />
+        
       </div>
     </div>
   </div>
+  <Footer/>
 </template>
 
 <script setup>
 import Navbar from '@/components/Navbar.vue'
 import ContactInfo from '@/components/Contactus/ContactInfo.vue'
 import ContactForm from '@/components/Contactus/ContactForm.vue'
+import Footer from '@/components/Footer.vue'
 </script>
 
 <style scoped>

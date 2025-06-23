@@ -3,10 +3,12 @@ import Navbar from '@/components/Navbar.vue'
 import HeroSection from '@/components/HeroSection.vue'
 import SportType from '@/components/SportType.vue'
 import SportService from '@/components/SportService.vue'
-import SpecialCost from '@/components/SpecialCost.vue'
+import SpecialCost from '@/components/Bookingstep.vue'
 import Equipment from '@/components/Equipment.vue';
-import Carousel from '@/components/Carousel.vue'; // Ensure the path matches your project structure
-
+import Carousel from '@/components/Carousel.vue'; 
+import Footer from '@/components/Footer.vue';
+import Excellentplan from '@/components/Excellentplan.vue';
+import Bookingstep from '@/components/Bookingstep.vue'
 </script>
 <script>
 export default {
@@ -15,6 +17,9 @@ export default {
       Navbar,
       Equipment,
       Carousel,
+      Footer,
+      Excellentplan,
+      Bookingstep
   },
 }
 </script>
@@ -24,8 +29,13 @@ export default {
     <HeroSection />
     <SportType />
     <SportService />
-    <SpecialCost />
+    <Bookingstep/>
+
     <Equipment />
-    <Carousel /> 
+    <Carousel />
+    <!-- <Excellentplan /> -->
+    <!-- <Usertestimonial /> -->
+    
+    <Footer />
   </main>
 </template>

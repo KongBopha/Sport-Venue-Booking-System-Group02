@@ -1,5 +1,5 @@
 <template>
-    <section class="px-6 md:px-12 py-12 text-center">
+    <section class="px-6 md:px-12 py-28 text-center">
       <h2 class="text-3xl font-bold text-teal-600 mb-6">About us</h2>
       <div class="flex flex-col md:flex-row items-center justify-center gap-10">
         <img src="@/assets/Aboutus/people.png" alt="About us" class="w-64 h-64 object-contain" />

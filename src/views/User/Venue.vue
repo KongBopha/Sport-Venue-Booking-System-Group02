@@ -1,15 +1,39 @@
 <script setup>
-import Navbar from '@/components/Navbar.vue' // Ensure the path matches your project structure
-</script>
-<script>
-export default {
-  name: 'Venue',
-  // Other options like methods, computed properties, lifecycle hooks, etc.
+import { ref } from 'vue';
+import Navbar from '@/components/Navbar.vue';
+import VenueHeroSection from '@/components/venue/VenueHeroSection.vue';
+import SportButtoms from '@/components/venue/SportButtoms.vue';
+import SportOverView from '@/components/venue/Football/SportOverView.vue';
+import SportReview from '@/components/venue/Football/SportReview.vue';
+import CourtRent from '@/components/venue/Football/CourtRent.vue';
+import Footer from '@/components/Footer.vue';
+
+// Default sport
+const selectedSportId = ref(1);
+const selectedSportLabel = ref('Football Sport');
+
+// Event handler from child
+function handleSportChange({ id, label }) {
+  selectedSportId.value = id;
+  selectedSportLabel.value = label;
 }
 </script>
+
 <template>
-  <main>
-    <Navbar /> 
-    <div class="text-center mt-24 text-2xl">Vanue page</div>
-  </main>
+  <div class="flex flex-col min-h-screen">
+    <main class="flex-grow">
+      <Navbar />
+      <VenueHeroSection />
+
+      <SportButtoms
+        :selectedSportId="selectedSportId"
+        @sport-changed="handleSportChange"
+      />
+      <CourtRent :selectedSportId="selectedSportId" />
+      <SportOverView :selectedSport="selectedSportLabel" />
+      <SportReview :sportId="selectedSportId" />
+
+    </main>
+    <Footer />
+  </div>
 </template>

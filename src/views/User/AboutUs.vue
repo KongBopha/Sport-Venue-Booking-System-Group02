@@ -6,7 +6,7 @@ import Facilities from '@/components/Aboutus/Facilities.vue'
 import OurTeam from '@/components/Aboutus/OurTeam.vue'
 import CommunityInvolvement from '@/components/Aboutus/CommunityInvolvement.vue'
 import FaqSection from '@/components/Aboutus/FaqSection.vue'
-import Loginform from '@/components/Authen/Loginform.vue'
+import Footer from '@/components/Footer.vue'
 </script>
 
 <template>
@@ -18,7 +18,7 @@ import Loginform from '@/components/Authen/Loginform.vue'
     <OurTeam />
     <CommunityInvolvement />
     <FaqSection />
-    <Loginform />
+    <Footer/>
 
   </main>
 </template>
