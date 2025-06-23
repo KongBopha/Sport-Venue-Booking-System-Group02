@@ -15,4 +15,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    allowedHosts: ['web.sportclub.cloud'] // Allow the custom domain
+  }
 })
