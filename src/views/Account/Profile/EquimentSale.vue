@@ -14,7 +14,7 @@
           <li>
             <router-link to="/account/booking" active-class="active"  exact>Booking</router-link>
           </li>
-          <li>
+         <li>
             <router-link to="/account/equipment" active-class="active">Equipment</router-link>
           </li>
         </ul>
@@ -27,53 +27,54 @@
           <div class="profile-right">
               <div class="bg-white rounded-xl shadow-sm border border-gray-100">
                 <div class="px-6 py-4 border-b border-gray-200">
-                  <h3 class="text-lg font-semibold text-gray-900">Bookings</h3>
+                  <h3 class="text-lg font-semibold text-gray-900">Equiment</h3>
                 </div>
                 <div class="overflow-x-auto">
                   <table class="w-full">
                     <thead class="bg-gray-50">
                       <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Receipt Number</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sport/Pitch</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date & Time</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                        
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Equipment</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                      <tr v-for="booking in bookings" :key="booking.id" class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">#{{ booking.id }}</td>
+                      <tr v-for="sale in sales" :key="sale.id" class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">{{ sale.receipt }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                           <div class="flex items-center">
-                            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                              <span class="text-xs font-medium">{{ booking.user?.name?.charAt(0) || 'U' }}</span>
-                            </div>
-                            <div class="ml-3">
-                              <div class="text-sm font-medium text-gray-900">{{ booking.user?.name || 'Unknown' }}</div>
-                              <div class="text-sm text-gray-500">{{ booking.phone }}</div>
-                            </div>
+                           <span class="text-xs font-medium">
+                              {{ sale.customer?.charAt(0) || 'U' }}
+                            </span>
+                                                        
                           </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <div class="text-sm font-medium text-gray-900">{{ booking.pitch?.category?.sport?.name }}</div>
-                          <div class="text-sm text-gray-500">{{ booking.pitch?.name }}</div>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ sale.equipment }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.quantity }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${{ sale.total }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ sale.updated_at }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div class="flex items-center space-x-2">
+                            <button
+                              class="text-blue-600 hover:text-blue-900"
+                              @click="editSale(sale)"
+                              title="Edit"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              class="text-red-600 hover:text-red-900"
+                              @click="deleteItem(sale)"
+                              title="Delete"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <div class="text-sm text-gray-900">{{ formatDate(booking.date) }}</div>
-                          <div class="text-sm text-gray-500">{{ booking.time?.name }} ({{ booking.duration_in_hours }}h)</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                          <span 
-                            :class="['px-2 py-1 text-xs font-medium rounded-full', getStatusColor(booking.booking_status)]"
-                            :style="{ backgroundColor: booking.booking_status?.color + '20', color: booking.booking_status?.color }"
-                          >
-                            {{ booking.booking_status?.name }}
-                          </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${{ booking.price }}</td>
-                        
                       </tr>
                     </tbody>
                   </table>
@@ -91,72 +92,63 @@
 </template>
 
 <script>
+import { 
+  ShoppingBag, 
+  Package, 
+  TrendingUp, 
+  RotateCcw, 
+  Filter, 
+  Plus,
+  FileText,
+  BarChart3
+} from 'lucide-vue-next';
+
 import Navbar from '@/components/Navbar.vue';
-import ProfileService from './service';
 import { ref, onMounted } from 'vue';
-
 export default {
+  name: 'Equiment-Sale',
   components: {
-    Navbar,
+    Navbar
   },
-  setup() {
-    const bookings = ref([]);
-    const stats = ref({});
-    const loading = ref(false);
-
-    const loadBookings = async () => {
-      try {
-        loading.value = true;
-
-        // Optional: Add filters like date, key, time_id
-        const filters = {
-          // Example filter (optional)
-          // key: 'Satya',
-          // date: new Date().toISOString(),
-        };
-
-        const response = await ProfileService.getData(filters); // user_id will be added automatically
-        bookings.value = response.data.bookings;
-        stats.value = response.data;
-      } catch (error) {
-        console.error('Error loading bookings:', error);
-      } finally {
-        loading.value = false;
-      }
-    };
-    const formatDate = (dateString) => {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(dateString).toLocaleDateString(undefined, options);
-    };
-    const getStatusColor = (status) => {
-      if (!status) return '';
-      
-      switch (status.name) {
-        case 'Pending':
-          return 'bg-yellow-100 text-yellow-800';
-        case 'Confirmed':
-          return 'bg-green-100 text-green-800';
-        case 'Completed':
-          return 'bg-blue-100 text-blue-800';
-        case 'Cancelled':
-          return 'bg-red-100 text-red-800';
-        default:
-          return 'bg-gray-100 text-gray-800';
-      }
-    };
-    onMounted(() => {
-      loadBookings();
-    });
-
+  data() {
     return {
-      bookings,
-      stats,
-      loading,
-      loadBookings,
-      formatDate,
-      getStatusColor
+      fileUrl: import.meta.env.VITE_FILE_BASE_URL, // 👈 Add file base URL
+      sales: [],
+      totalSalesAmount: 0,
+      totalQuantitySold: 0,
+      averageSalePrice: 0,
     };
   },
+  async created() {
+    await this.listing();
+  },
+  methods: {
+   async listing() {
+      try {
+        const response = await ProfileService.listingEquipment(); // No need to pass user_id manually
+        this.totalSalesAmount = response.meta?.totalSalesAmount || 0;
+        this.totalQuantitySold = response.meta?.totalQuantitySold || 0;
+        this.averageSalePrice = response.meta?.averageSalePrice || 0;
+
+        this.sales = response.sales.map(item => ({
+          ...item,
+          id: item.id,
+          receipt: item.payment?.receipt_number || `EQ${item.id}`,
+          customer: item.user?.name || 'Unknown',
+          equipment: item.equipment?.name || 'N/A',
+          quantity: item.qty || 0,
+          total: item.total_price || 0,
+          updated_at: new Date(item.updated_at).toLocaleDateString()
+        }));
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+ 
+
+  }
 };
 </script>
 <style scoped>

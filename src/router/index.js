@@ -8,6 +8,7 @@ const routes = [
   { path: '/auth/signup', component: () => import('@/views/Account/Signup.vue') },
   { path: '/account/profile', component: () => import('@/views/Account/Profile/Profile.vue') },
   { path: '/account/booking', component: () => import('@/views/Account/Profile/Booking.vue') },
+   { path: '/account/equipment', component: () => import('@/views/Account/Profile/EquimentSale.vue') },
   {
     path: '/user',
     component: () => import('@/views/User/User.vue'),

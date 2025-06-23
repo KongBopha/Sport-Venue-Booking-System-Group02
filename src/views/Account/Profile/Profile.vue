@@ -14,9 +14,9 @@
           <li>
             <router-link to="/account/booking" active-class="active">Booking</router-link>
           </li>
-          <!-- <li>
-            <router-link to="/history" active-class="active">History</router-link>
-          </li> -->
+          <li>
+            <router-link to="/account/equipment" active-class="active">Equipment</router-link>
+          </li>
         </ul>
         </div>
       </aside>

@@ -92,13 +92,53 @@ export class ProfileService {
       }
     });
 
-    return this.http.get(`admin/bookings`, { params })
+    return this.http.get(`user/bookings`, { params })
       .then(response => response.data)
       .catch(error => {
         console.error('Request failed:', error);
         throw error;
       });
   }
+  listingEquipment(filters: Record<string, any> = {}) {
+  const params = new URLSearchParams();
+
+  // ====== START: Add user_id from localStorage ======
+  const storedUser = localStorage.getItem('user');
+  let currentUser = null;
+
+  if (storedUser) {
+    try {
+      currentUser = JSON.parse(storedUser);
+    } catch (e) {
+      console.error('Failed to parse user from localStorage', e);
+    }
+  }
+
+  if (currentUser && currentUser.id) {
+    filters.user_id = currentUser.id;
+  }
+  // ====== END: Add user_id ======
+
+  // Append all valid filters to query params
+  Object.keys(filters).forEach(key => {
+    if (filters[key] !== undefined && filters[key] !== null) {
+      params.append(key, filters[key]);
+    }
+  });
+
+  return this.http.get(`admin/equipment-sales`, { params })
+    .then(response => response.data)
+    .catch(error => {
+      if (error.response) {
+        console.error('Response Error:', error.response.status, error.response.data);
+      } else if (error.request) {
+        console.error('No Response:', error.request);
+      } else {
+        console.error('Request Error:', error.message);
+      }
+      throw error;
+    });
+}
 }
 
 export default new ProfileService();
