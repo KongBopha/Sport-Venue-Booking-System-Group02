@@ -64,7 +64,41 @@ export class ProfileService {
       return res.json();
     });
   }
+  getData(filters: Record<string, any> = {}, { includeUser = true } = {}) {
+    const params = new URLSearchParams();
 
+    // Only add user_id if includeUser is true
+    if (includeUser) {
+      const storedUser = localStorage.getItem('user');
+      let currentUser = null;
+
+      if (storedUser) {
+        try {
+          currentUser = JSON.parse(storedUser);
+        } catch (e) {
+          console.error('Failed to parse user from localStorage', e);
+        }
+      }
+
+      if (currentUser && currentUser.id) {
+        filters.user_id = currentUser.id;
+      }
+    }
+
+    // Append all valid filters
+    Object.keys(filters).forEach(key => {
+      if (filters[key] !== undefined && filters[key] !== null) {
+        params.append(key, filters[key]);
+      }
+    });
+
+    return this.http.get(`admin/bookings`, { params })
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Request failed:', error);
+        throw error;
+      });
+  }
 }
 
 export default new ProfileService();

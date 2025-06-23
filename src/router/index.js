@@ -7,6 +7,7 @@ const routes = [
   { path: '/auth/login', component: () => import('@/views/Account/Login.vue') },
   { path: '/auth/signup', component: () => import('@/views/Account/Signup.vue') },
   { path: '/account/profile', component: () => import('@/views/Account/Profile/Profile.vue') },
+  { path: '/account/booking', component: () => import('@/views/Account/Profile/Booking.vue') },
   {
     path: '/user',
     component: () => import('@/views/User/User.vue'),
