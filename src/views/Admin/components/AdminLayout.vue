@@ -122,7 +122,7 @@ export default {
         { name: 'Equipment', icon: Package, route: '/admin/equipments' },
         { name: 'Drink', icon: Coffee, route: '/admin/drink' },
         { name: 'Users', icon: Users, route: '/admin/users' },
-        { name: 'Sponsor', icon: Building, route: '/admin/sponsor' },
+        // { name: 'Sponsor', icon: Building, route: '/admin/sponsor' },
         { name: 'Settings', icon: Settings, route: '/admin/settings' }
       ]
     }
@@ -145,7 +145,7 @@ export default {
         '/admin/equipments': 'Manage sports equipment and rentals',
         '/admin/drink': 'Beverage inventory and sales management',
         '/admin/users': 'User accounts and member management',
-        '/admin/sponsor': 'Sponsor relationships and partnerships',
+        // '/admin/sponsor': 'Sponsor relationships and partnerships',
         '/admin/settings': 'System configuration and preferences'
       }
 
