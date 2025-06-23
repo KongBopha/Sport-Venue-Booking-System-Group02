@@ -3,6 +3,23 @@
   <div class="page">
     <!-- Profile Section -->
     <main class="profile-section">
+        <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-content">
+          <h3>Navigation</h3>
+         <ul class="nav-links">
+          <li>
+            <router-link to="/account/profile" active-class="active" exact>Profile</router-link>
+          </li>
+          <li>
+            <router-link to="/account/booking" active-class="active">Booking</router-link>
+          </li>
+          <li>
+            <router-link to="/account/equipment" active-class="active">Equipment</router-link>
+          </li>
+        </ul>
+        </div>
+      </aside>
       <div class="profile-card">
         <!-- Title Section -->
         <div class="title">Profile Page</div>
@@ -527,7 +544,61 @@ export default {
 .cancel-btn:hover {
   background-color: #dc2626;
 }
+/* Sidebar Styling */
+.sidebar {
+  width: 200px;
+  background-color: #f9fafb;
+  border-radius: 12px 0 0 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  min-height: 65vh;
+}
 
+.sidebar h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.nav-links {
+  list-style: none;
+  padding: 0;
+}
+
+.nav-links li {
+  margin-bottom: 0.75rem;
+}
+
+.nav-links li a {
+  text-decoration: none;
+  color: #374151;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.nav-links li a:hover {
+  color: #10b981;
+}
+
+.nav-links li .active {
+  color: #10b981;
+  font-weight: bold;
+  position: relative;
+}
+
+/* Optional: Add a small icon or line indicator */
+.nav-links li .active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background-color: #10b981;
+  border-radius: 999px;
+}
 /* Responsive */
 @media (max-width: 768px) {
   .profile-content {

@@ -39,7 +39,7 @@ watch(
         equipments_id: val.equipments_id || '',
         qty: val.qty || 1,
         payment_id: val.payment_id || '',
-        total_price: val.total_price || ''
+     
       }
     } else {
       // Create mode: blank form
@@ -48,7 +48,7 @@ watch(
         equipments_id: '',
         qty: 1,
         payment_id: '',
-        total_price: ''
+       
       }
     }
   },
@@ -61,7 +61,7 @@ const submit = async () => {
     equipments_id: form.value.equipments_id,
     qty: form.value.qty,
     payment_id: form.value.payment_id || null,
-    total_price: form.value.total_price
+  
   }
   if (props.sale && props.sale.id) {
     // Update
@@ -114,10 +114,10 @@ onMounted(fetchSetup)
               </option>
             </select>
           </div>
-          <div>
+          <!-- <div>
             <label class="block text-sm font-medium text-gray-700">Total Price</label>
             <input v-model.number="form.total_price" required min="0" type="number" step="0.01" class="w-full border px-3 py-2 rounded" />
-          </div>
+          </div> -->
         </div>
 
         <div class="mt-6 flex justify-end space-x-3">
