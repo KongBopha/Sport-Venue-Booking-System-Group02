@@ -16,6 +16,8 @@ export default defineConfig({
     },
   },
   server: {
-    allowedHosts: ['web.sportclub.cloud'] // Allow the custom domain
-  }
+    host: "0.0.0.0", // Allow external access
+    port: 5173,
+    allowedHosts: ["web.sportclub.cloud"],
+  },
 })
