@@ -5,6 +5,7 @@ export default {
   name: 'Carousel',
   data() {
     return {
+      fileUrl: import.meta.env.VITE_FILE_BASE_URL,
       equipmentData: {},
       showModal: false,
       selectedItem: null,
@@ -105,7 +106,7 @@ export default {
             @click="openModal(item)"
           >
           <img
-            :src="`/images/${item.image}`"
+            :src="`${fileUrl}${item.image}`"
             alt="equipment image"
             class="h-60 w-full object-cover rounded-t-xl"
           />

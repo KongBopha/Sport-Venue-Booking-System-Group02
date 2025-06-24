@@ -1,157 +1,266 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
-import ballImage from '@/assets/images/ball2.jpeg'
-import footballImg from '@/assets/images/football.png'
-import batmintonImg from '@/assets/images/batminton.png'
-import volleyballImg from '@/assets/images/volleyball.png'
 import Footer from '@/components/Footer.vue'
+import userBookingService from './userBookingService'
+import ballImage from '@/assets/images/ball2.jpeg'
 
 const router = useRouter()
-const selectedDate = ref(null)
-const selectedTime = ref(null)
+
+const fileUrl = import.meta.env.VITE_FILE_BASE_URL;
+// Reactive state
+const loading = ref(false)
+const currentStep = ref(1) // 1: Sports, 2: Categories, 3: Pitches, 4: Time Selection
 const selectedSport = ref(null)
-const selectedVenue = ref('')
-const currentDate = ref(new Date())
-const showDatePicker = ref(false)
+const selectedCategory = ref(null)
+const selectedPitch = ref(null)
+const selectedTimeSlot = ref(null)
+const selectedTime = ref(null)
+const calculatedPrice = ref(0)
+const showConfirmDialog = ref(false)
 
-// Generate calendar for current month
-const generateCalendar = () => {
-  const year = currentDate.value.getFullYear()
-  const month = currentDate.value.getMonth()
-  const firstDay = new Date(year, month, 1)
-  const lastDay = new Date(year, month + 1, 0)
-  const startDate = new Date(firstDay)
-  startDate.setDate(startDate.getDate() - firstDay.getDay())
-  
-  const days = []
-  const today = new Date()
-  
-  for (let i = 0; i < 42; i++) {
-    const currentDay = new Date(startDate)
-    currentDay.setDate(startDate.getDate() + i)
-    
-    days.push({
-      date: currentDay.getDate(),
-      fullDate: new Date(currentDay),
-      isCurrentMonth: currentDay.getMonth() === month,
-      isPast: currentDay < today.setHours(0, 0, 0, 0),
-      isToday: currentDay.toDateString() === today.toDateString()
-    })
-  }
-  
-  return days
-}
+// Data from backend
+const sports = ref([])
+const categories = ref([])
+const pitches = ref([])
+const timeSlots = ref([])
+const bookingData = ref(null)
 
-const calendarDays = computed(() => generateCalendar())
-
-const currentMonthYear = computed(() => {
-  return currentDate.value.toLocaleDateString('en-US', { 
-    month: 'long', 
-    year: 'numeric' 
-  })
+// User data
+const userData = ref(null)
+const bookingForm = ref({
+  phone: '',
+  phone2: '',
+  pitch_id: null,
+  date: null,
+  time_id: null,
+  price: 0
 })
 
-const timeSlots = [
-  { 
-    time: '5:00 PM', 
-    price: 50, 
-    duration: 120,
-    availability: {
-      default: true,
-      exceptions: [] // Can add specific dates that are unavailable
-    }
-  },
-  { 
-    time: '7:00 PM', 
-    price: 50, 
-    duration: 120,
-    availability: {
-      default: true,
-      exceptions: []
-    }
-  },
-  { 
-    time: '9:00 PM', 
-    price: 50, 
-    duration: 120,
-    availability: {
-      default: true,
-      exceptions: []
-    }
-  }
-]
+// Initialize component
+onMounted(async () => {
+  await loadInitialData()
+  loadUserData()
+})
 
-const venues = [
-  { id: 1, name: 'T Soccer', location: 'TK' },
-  { id: 2, name: 'Real Soccer', location: 'Sen Sok' },
-  { id: 3, name: 'Central', location: 'Beoung Kok' },
-  { id: 4, name: 'Speed Soccer', location: 'Sen Sok' }
-]
-
-const sports = [
-  { id: 'football', name: 'Football', image: footballImg, icon: '⚽' },
-  { id: 'badminton', name: 'Badminton', image: batmintonImg, icon: '🏸' },
-  { id: 'volleyball', name: 'Volleyball', image: volleyballImg, icon: '🏐' }
-]
-
-const handleProceed = () => {
-  if (selectedDate.value && selectedTime.value && selectedSport.value && selectedVenue.value) {
-    router.push('/user/checkout')
+// Load user data from localStorage
+const loadUserData = () => {
+  const user = localStorage.getItem('user')
+  if (user) {
+    userData.value = JSON.parse(user)
+    bookingForm.value.phone = userData.value.phone || ''
+    bookingForm.value.phone2 = userData.value.phone2 || ''
   }
 }
 
-const selectDate = (day) => {
-  if (!day.isPast && day.isCurrentMonth) {
-    selectedDate.value = day.fullDate
-    showDatePicker.value = false
+// Load initial data from backend
+const loadInitialData = async () => {
+  try {
+    loading.value = true
+    const currentDate = new Date().toISOString().split('T')[0]
+    const response = await userBookingService.dataSetup(null, currentDate)
+    bookingData.value = response.data
+    sports.value = response.data.sports || []
+  } catch (error) {
+    console.error('Error loading initial data:', error)
+  } finally {
+    loading.value = false
   }
 }
 
-const selectTime = (timeSlot) => {
-  if (selectedDate.value && isTimeAvailable(timeSlot)) {
-    selectedTime.value = timeSlot
+// Load categories when sport is selected
+const loadCategories = async (sportId) => {
+  try {
+    loading.value = true
+    // Assuming you have an endpoint to get categories by sport
+    // For now, using mock data based on your structure
+    categories.value = [
+      { id: 1, name: 'Indoor Courts', sport_id: sportId },
+      { id: 2, name: 'Outdoor Fields', sport_id: sportId },
+      { id: 3, name: 'Premium Courts', sport_id: sportId }
+    ]
+  } catch (error) {
+    console.error('Error loading categories:', error)
+  } finally {
+    loading.value = false
   }
 }
 
-const selectSport = (sport) => {
+// Load pitches when category is selected
+const loadPitches = async (categoryId) => {
+  try {
+    loading.value = true
+    // Assuming you have an endpoint to get pitches by category
+    // For now, using mock data
+    pitches.value = [
+      { id: 1, name: 'Court A', category_id: categoryId, location: 'Building 1' },
+      { id: 2, name: 'Court B', category_id: categoryId, location: 'Building 1' },
+      { id: 3, name: 'Field C', category_id: categoryId, location: 'Building 2' }
+    ]
+  } catch (error) {
+    console.error('Error loading pitches:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load time slots when pitch is selected
+const loadTimeSlots = async (pitchId) => {
+  try {
+    loading.value = true
+    const currentDate = new Date().toISOString().split('T')[0]
+    const response = await userBookingService.dataSetup(pitchId, currentDate)
+    timeSlots.value = response.data.time_slots || []
+  } catch (error) {
+    console.error('Error loading time slots:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Calculate price when time is selected
+const calculatePrice = async (date, timeId, pitchId) => {
+  try {
+    const response = await userBookingService.calculatePrice(date, timeId, pitchId)
+    calculatedPrice.value = parseFloat(response.data.price)
+    bookingForm.value.price = calculatedPrice.value
+  } catch (error) {
+    console.error('Error calculating price:', error)
+  }
+}
+
+// Handle sport selection
+const selectSport = async (sport) => {
   selectedSport.value = sport
+  selectedCategory.value = null
+  selectedPitch.value = null
+  selectedTimeSlot.value = null
+  selectedTime.value = null
+  categories.value = []
+  pitches.value = []
+  timeSlots.value = []
+  
+  await loadCategories(sport.id)
+  currentStep.value = 2
 }
 
-const isTimeAvailable = (timeSlot) => {
-  // Add logic to check if time slot is available for selected date
-  return timeSlot.availability.default
+// Handle category selection
+const selectCategory = async (category) => {
+  selectedCategory.value = category
+  selectedPitch.value = null
+  selectedTimeSlot.value = null
+  selectedTime.value = null
+  pitches.value = []
+  timeSlots.value = []
+  
+  await loadPitches(category.id)
+  currentStep.value = 3
 }
 
-const isTimeSelected = (timeSlot) => {
-  return selectedTime.value && selectedTime.value.time === timeSlot.time
+// Handle pitch selection
+const selectPitch = async (pitch) => {
+  selectedPitch.value = pitch
+  selectedTimeSlot.value = null
+  selectedTime.value = null
+  timeSlots.value = []
+  
+  bookingForm.value.pitch_id = pitch.id
+  await loadTimeSlots(pitch.id)
+  currentStep.value = 4
 }
 
-const previousMonth = () => {
-  const newDate = new Date(currentDate.value)
-  newDate.setMonth(newDate.getMonth() - 1)
-  currentDate.value = newDate
+// Handle time slot selection
+const selectTimeSlot = (timeSlot) => {
+  selectedTimeSlot.value = timeSlot
+  selectedTime.value = null
 }
 
-const nextMonth = () => {
-  const newDate = new Date(currentDate.value)
-  newDate.setMonth(newDate.getMonth() + 1)
-  currentDate.value = newDate
+// Handle time selection
+const selectTime = async (time, date) => {
+  if (time.booked) return
+  
+  selectedTime.value = time
+  bookingForm.value.time_id = time.id
+  bookingForm.value.date = new Date(date)
+  
+  await calculatePrice(date, time.id, selectedPitch.value.id)
+  showConfirmDialog.value = true
 }
 
-const isFormValid = computed(() => {
-  return selectedDate.value && selectedTime.value && selectedSport.value && selectedVenue.value
-})
+// Confirm booking
+const confirmBooking = async () => {
+  try {
+    loading.value = true
+    const response = await userBookingService.create(bookingForm.value)
+    
+    // if (response.data) {
+    //   // Booking successful
+    //   router.push('/user/checkout')
+    // }
+  } catch (error) {
+    console.error('Error creating booking:', error)
+    alert('Failed to create booking. Please try again.')
+  } finally {
+    loading.value = false
+    showConfirmDialog.value = false
+  }
+}
 
-const formatSelectedDate = computed(() => {
-  if (!selectedDate.value) return null
-  return selectedDate.value.toLocaleDateString('en-US', { 
+// Go back to previous step
+const goBack = () => {
+  if (currentStep.value > 1) {
+    currentStep.value--
+    
+    switch (currentStep.value) {
+      case 1:
+        selectedSport.value = null
+        categories.value = []
+        break
+      case 2:
+        selectedCategory.value = null
+        pitches.value = []
+        break
+      case 3:
+        selectedPitch.value = null
+        timeSlots.value = []
+        break
+    }
+  }
+}
+
+// Format time display
+const formatTime = (timeString) => {
+  const [hour] = timeString.split(':')
+  const hourNum = parseInt(hour)
+  const ampm = hourNum >= 12 ? 'PM' : 'AM'
+  const displayHour = hourNum > 12 ? hourNum - 12 : hourNum === 0 ? 12 : hourNum
+  return `${displayHour}:00 ${ampm}`
+}
+
+// Format date display
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', { 
     weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
+    month: 'short', 
     day: 'numeric' 
   })
+}
+
+// Computed properties
+const stepTitle = computed(() => {
+  switch (currentStep.value) {
+    case 1: return 'Select Sport'
+    case 2: return 'Select Category'
+    case 3: return 'Select Venue'
+    case 4: return 'Select Date & Time'
+    default: return 'Book Your Session'
+  }
+})
+
+const canProceed = computed(() => {
+  return selectedSport.value && selectedCategory.value && selectedPitch.value && selectedTime.value
 })
 </script>
 
@@ -159,7 +268,7 @@ const formatSelectedDate = computed(() => {
   <main class="min-h-screen bg-gray-50">
     <Navbar />
 
-    <!-- Hero Section with Gradient Overlay -->
+    <!-- Hero Section -->
     <div class="relative">
       <div class="w-full h-48 bg-cover bg-center relative overflow-hidden">
         <img 
@@ -176,44 +285,134 @@ const formatSelectedDate = computed(() => {
       </div>
     </div>
 
-    <!-- Progress Steps -->
-    <div class="bg-white border-b border-gray-200">
-      <div class="max-w-6xl mx-auto px-4 py-8">
-        <div class="flex items-center justify-center">
-          <div class="flex items-center space-x-8">
-            <!-- Step 1 -->
-            <div class="flex items-center">
-              <div class="flex flex-col items-center">
-                <div class="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold shadow-lg">
-                  1
-                </div>
-                <span class="text-sm font-medium text-blue-600 mt-2">Booking</span>
-              </div>
+
+
+    <!-- Main Content -->
+    <div class="max-w-6xl mx-auto px-4 py-12">
+      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-white">{{ stepTitle }}</h2>
+              <p class="text-blue-100 mt-2">Step {{ currentStep }} of 4</p>
             </div>
+            <button 
+              v-if="currentStep > 1"
+              @click="goBack"
+              class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              ← Back
+            </button>
+          </div>
+        </div>
 
-            <!-- Connector -->
-            <div class="w-16 h-1 bg-gray-300 rounded-full"></div>
+        <div class="p-8">
+          <!-- Loading State -->
+          <div v-if="loading" class="flex justify-center items-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
 
-            <!-- Step 2 -->
-            <div class="flex items-center">
-              <div class="flex flex-col items-center">
-                <div class="w-10 h-10 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center font-semibold">
-                  2
+          <!-- Step 1: Sports Selection -->
+          <div v-else-if="currentStep === 1" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <button
+                v-for="sport in sports"
+                :key="sport.id"
+                @click="selectSport(sport)"
+                :class="[
+                  'p-6 border-2 rounded-xl transition-all duration-200 hover:shadow-lg',
+                  selectedSport?.id === sport.id 
+                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                    : 'border-gray-200 hover:border-blue-300'
+                ]"
+              >
+                <div class="flex flex-col items-center justify-center">
+                  <img v-if="sport" class="w-10 h-10 object-cover rounded-lg" :src="fileUrl + sport.image" alt="">
+                  <div v-else class="text-4xl mb-3">⚽</div>
+                   <div class="text-center">
+                     <h3 class="text-lg font-semibold text-gray-800">{{ sport.name }}</h3>
+                     <p class="text-sm text-gray-600 mt-1">{{ sport.description || 'Available now' }}</p>
+                   </div>
                 </div>
-                <span class="text-sm font-medium text-gray-400 mt-2">Checkout</span>
-              </div>
+              </button>
             </div>
+          </div>
 
-            <!-- Connector -->
-            <div class="w-16 h-1 bg-gray-300 rounded-full"></div>
+          <!-- Step 2: Categories Selection -->
+          <div v-else-if="currentStep === 2" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <button
+                v-for="category in categories"
+                :key="category.id"
+                @click="selectCategory(category)"
+                :class="[
+                  'p-6 border-2 rounded-xl transition-all duration-200 hover:shadow-lg text-left',
+                  selectedCategory?.id === category.id 
+                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                    : 'border-gray-200 hover:border-blue-300'
+                ]"
+              >
+                <h3 class="text-lg font-semibold text-gray-800">{{ category.name }}</h3>
+                <p class="text-sm text-gray-600 mt-2">Multiple venues available</p>
+              </button>
+            </div>
+          </div>
 
-            <!-- Step 3 -->
-            <div class="flex items-center">
-              <div class="flex flex-col items-center">
-                <div class="w-10 h-10 rounded-full border-2 border-gray-300 text-gray-400 flex items-center justify-center font-semibold">
-                  3
+          <!-- Step 3: Pitches Selection -->
+          <div v-else-if="currentStep === 3" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <button
+                v-for="pitch in pitches"
+                :key="pitch.id"
+                @click="selectPitch(pitch)"
+                :class="[
+                  'p-6 border-2 rounded-xl transition-all duration-200 hover:shadow-lg text-left',
+                  selectedPitch?.id === pitch.id 
+                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                    : 'border-gray-200 hover:border-blue-300'
+                ]"
+              >
+                <h3 class="text-lg font-semibold text-gray-800">{{ pitch.name }}</h3>
+                <p class="text-sm text-gray-600 mt-2">{{ pitch.location }}</p>
+                <div class="mt-3 flex items-center text-sm text-green-600">
+                  <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  Available
                 </div>
-                <span class="text-sm font-medium text-gray-400 mt-2">Confirmation</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Time Selection -->
+          <div v-else-if="currentStep === 4" class="space-y-8">
+            <div v-for="timeSlot in timeSlots" :key="timeSlot.date" class="space-y-4">
+              <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+                <h3 class="text-lg font-semibold text-gray-800">
+                  {{ formatDate(timeSlot.date) }}
+                </h3>
+                <span class="text-sm text-gray-500">{{ timeSlot.name }}</span>
+              </div>
+              
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <button
+                  v-for="time in timeSlot.times"
+                  :key="time.id"
+                  @click="selectTime(time, timeSlot.date)"
+                  :disabled="time.booked"
+                  :class="[
+                    'p-4 border-2 rounded-lg transition-all duration-200 text-center',
+                    time.booked 
+                      ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed' 
+                      : selectedTime?.id === time.id 
+                        ? 'border-blue-500 bg-blue-50 shadow-md' 
+                        : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+                  ]"
+                >
+                  <div class="font-semibold">{{ formatTime(time.name) }}</div>
+                  <div class="text-xs text-gray-500 mt-1">
+                    {{ time.booked ? 'Booked' : 'Available' }}
+                  </div>
+                </button>
               </div>
             </div>
           </div>
@@ -221,214 +420,68 @@ const formatSelectedDate = computed(() => {
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="max-w-6xl mx-auto px-4 py-12">
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-6">
-          <h2 class="text-2xl font-bold text-white flex items-center">
-            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            Book Your Session
-          </h2>
-          <p class="text-blue-100 mt-2">Select your preferred venue, sport, date and time</p>
+    <!-- Confirmation Dialog -->
+    <div v-if="showConfirmDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+        <h3 class="text-xl font-bold text-gray-800 mb-6">Confirm Booking</h3>
+        
+        <div class="space-y-4 mb-6">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Sport:</span>
+            <span class="font-medium">{{ selectedSport?.name }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Category:</span>
+            <span class="font-medium">{{ selectedCategory?.name }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Venue:</span>
+            <span class="font-medium">{{ selectedPitch?.name }}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Time:</span>
+            <span class="font-medium">{{ formatTime(selectedTime?.name) }}</span>
+          </div>
+          <div class="flex justify-between border-t pt-4">
+            <span class="text-gray-600 font-semibold">Total Price:</span>
+            <span class="font-bold text-lg">${{ calculatedPrice }}</span>
+          </div>
         </div>
 
-        <div class="p-8 space-y-8">
-          <!-- Venue and Sport Selection -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Venue Selection -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                Select Venue
-              </h3>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">Choose Venue *</label>
-                <select 
-                  v-model="selectedVenue" 
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
-                >
-                  <option value="">Select a venue</option>
-                  <option v-for="venue in venues" :key="venue.id" :value="venue.id">
-                    {{ venue.name }} - {{ venue.location }}
-                  </option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Sport Selection -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-                Select Sport
-              </h3>
-              <div class="grid grid-cols-3 gap-3">
-                <button 
-                  v-for="sport in sports" 
-                  :key="sport.id"
-                  :class="[
-                    'p-4 border-2 rounded-lg transition-all duration-200 hover:shadow-md',
-                    selectedSport?.id === sport.id 
-                      ? 'border-blue-500 bg-blue-50 shadow-md' 
-                      : 'border-gray-200 hover:border-blue-300'
-                  ]"
-                  @click="selectSport(sport)"
-                >
-                  <div class="flex flex-col items-center space-y-2">
-                    <img :src="sport.image" :alt="sport.name" class="w-12 h-12 object-contain" />
-                    <span class="text-sm font-medium text-gray-700">{{ sport.name }}</span>
-                  </div>
-                </button>
-              </div>
-            </div>
+        <div class="space-y-4 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+            <input
+              v-model="bookingForm.phone"
+              type="tel"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              required
+            />
           </div>
-
-          <!-- Date Selection -->
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-              Select Date
-            </h3>
-            
-            <!-- Date Picker Button -->
-            <div class="relative">
-              <button 
-                @click="showDatePicker = !showDatePicker"
-                class="flex items-center justify-between w-full md:w-auto px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
-              >
-                <span class="flex items-center space-x-2">
-                  <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  <span>{{ formatSelectedDate || 'Select Date' }}</span>
-                </span>
-                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
-
-              <!-- Calendar Dropdown -->
-              <div 
-                v-if="showDatePicker" 
-                class="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-10 p-4 w-80"
-              >
-                <!-- Calendar Header -->
-                <div class="flex items-center justify-between mb-4">
-                  <button @click="previousMonth" class="p-2 hover:bg-gray-100 rounded-lg">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                  </button>
-                  <h4 class="text-lg font-semibold">{{ currentMonthYear }}</h4>
-                  <button @click="nextMonth" class="p-2 hover:bg-gray-100 rounded-lg">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                  </button>
-                </div>
-
-                <!-- Days of Week -->
-                <div class="grid grid-cols-7 gap-1 mb-2">
-                  <div v-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" :key="day" class="text-center text-sm font-medium text-gray-500 py-2">
-                    {{ day }}
-                  </div>
-                </div>
-
-                <!-- Calendar Days -->
-                <div class="grid grid-cols-7 gap-1">
-                  <button
-                    v-for="day in calendarDays"
-                    :key="`${day.fullDate.getTime()}`"
-                    @click="selectDate(day)"
-                    :disabled="day.isPast || !day.isCurrentMonth"
-                    :class="[
-                      'p-2 text-sm rounded-lg transition-all duration-200',
-                      !day.isCurrentMonth ? 'text-gray-300 cursor-not-allowed' :
-                      day.isPast ? 'text-gray-400 cursor-not-allowed' :
-                      day.isToday ? 'bg-blue-100 text-blue-600 font-semibold' :
-                      selectedDate && selectedDate.toDateString() === day.fullDate.toDateString() ? 'bg-blue-500 text-white' :
-                      'hover:bg-blue-100 text-gray-700'
-                    ]"
-                  >
-                    {{ day.date }}
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Alternative Phone</label>
+            <input
+              v-model="bookingForm.phone2"
+              type="tel"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
+        </div>
 
-          <!-- Time Selection -->
-          <div class="space-y-4" v-if="selectedDate">
-            <h3 class="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
-              Available Time Slots
-            </h3>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button
-                v-for="timeSlot in timeSlots"
-                :key="timeSlot.time"
-                @click="selectTime(timeSlot)"
-                :disabled="!isTimeAvailable(timeSlot)"
-                :class="[
-                  'p-4 border-2 rounded-lg transition-all duration-200',
-                  !isTimeAvailable(timeSlot) ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed' :
-                  isTimeSelected(timeSlot) ? 'border-blue-500 bg-blue-50 shadow-md' :
-                  'border-gray-200 hover:border-blue-300 hover:shadow-md'
-                ]"
-              >
-                <div class="text-center">
-                  <div class="text-lg font-semibold">{{ timeSlot.time }}</div>
-                  <div class="text-sm text-gray-600">${{ timeSlot.price }}</div>
-                  <div class="text-xs text-gray-500">{{ timeSlot.duration }} min</div>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Booking Summary -->
-          <div v-if="isFormValid" class="bg-blue-50 rounded-lg p-6 border border-blue-200">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4">Booking Summary</h3>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between">
-                <span class="text-gray-600">Venue:</span>
-                <span class="font-medium">{{ venues.find(v => v.id === selectedVenue)?.name }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Sport:</span>
-                <span class="font-medium">{{ selectedSport?.name }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Date:</span>
-                <span class="font-medium">{{ formatSelectedDate }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-gray-600">Time:</span>
-                <span class="font-medium">{{ selectedTime?.time }} ({{ selectedTime?.duration }} min)</span>
-              </div>
-              <div class="flex justify-between border-t pt-2 mt-2">
-                <span class="text-gray-600 font-semibold">Total:</span>
-                <span class="font-bold text-lg">${{ selectedTime?.price }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Proceed Button -->
-          <div class="flex justify-center pt-6">
-            <button 
-              @click="handleProceed"
-              :disabled="!isFormValid"
-              :class="[
-                'font-semibold py-4 px-12 rounded-lg shadow-lg transform transition-all duration-200 focus:outline-none focus:ring-4 flex items-center space-x-3',
-                isFormValid 
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:scale-105 focus:ring-blue-300' 
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              ]"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
-              </svg>
-              <span>Proceed to Checkout</span>
-            </button>
-          </div>
+        <div class="flex space-x-4">
+          <button
+            @click="showConfirmDialog = false"
+            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmBooking"
+            :disabled="!bookingForm.phone || loading"
+            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {{ loading ? 'Booking...' : 'Confirm Booking' }}
+          </button>
         </div>
       </div>
     </div>
@@ -439,28 +492,23 @@ const formatSelectedDate = computed(() => {
 
 <style scoped>
 /* Custom focus styles for better accessibility */
-select:focus, button:focus {
+input:focus, button:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Smooth transitions for interactive elements */
-select, button {
+input, button {
   transition: all 0.2s ease-in-out;
 }
 
-/* Calendar dropdown animation */
-.calendar-dropdown {
-  animation: slideDown 0.2s ease-out;
+/* Loading animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 </style>
