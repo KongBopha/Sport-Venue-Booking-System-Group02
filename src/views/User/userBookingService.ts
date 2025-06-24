@@ -1,6 +1,6 @@
 import axios from "axios"
 
-export class ProfileService {
+export class UserBookingService {
   private apiUrl: string = import.meta.env.VITE_API_BASE_URL
 
   private http = axios.create({
@@ -18,7 +18,6 @@ export class ProfileService {
   private setupInterceptors() {
     this.http.interceptors.request.use((config) => {
       const Token = localStorage.getItem("Token")
-      console.log("Token:", Token) // Debugging
       if (Token) {
         config.headers.Authorization = `Bearer ${Token}`
       }
@@ -61,60 +60,76 @@ export class ProfileService {
       }
     } else if (error.request) {
       console.error("No Response:", error.request)
+      console.error("Network error or server is down")
     } else {
       console.error("Request Error:", error.message)
     }
   }
 
-  /**
-   * Update user profile.
-   * @param profileData - The updated profile data (e.g., name, email, phone, avatar).
-   */
-  updateProfile(profileData: { name: string; email: string; phone: string; phone2?: string; avatar?: string }) {
-    return this.http
-      .put("profile", profileData)
+  // Get initial data setup
+  dataSetup(pitch_id?: number, date?: string) {
+    const params: any = {}
+    if (pitch_id) params.pitch_id = pitch_id
+    if (date) params.date = date
+
+    return axios
+      .get(this.apiUrl + "public/bookings/data-setup", { params })
       .then((response) => response.data)
       .catch((error) => {
         throw error
       })
   }
 
-  /**
-   * Change user password.
-   * @param passwordData - The password payload.
-   */
-  changePassword(payload: any) {
-    return fetch(`${import.meta.env.VITE_API_BASE_URL}profile/update-password`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("Token")}`,
-      },
-      body: JSON.stringify(payload),
-    }).then((res) => {
-      if (!res.ok) throw new Error("Password update failed")
-      return res.json()
-    })
-  }
+  // Calculate price for booking
+  calculatePrice(date: string, time_id: number, pitch_id: number) {
+    const params = {
+      date,
+      time_id,
+      pitch_id,
+    }
 
-  /**
-   * Get user bookings with statistics.
-   */
-  getUserBookings() {
     return this.http
-      .get("user/bookings")
+      .get("user/bookings/calculate-price", { params })
       .then((response) => response.data)
       .catch((error) => {
         throw error
       })
   }
 
-  /**
-   * Get user equipment purchases.
-   */
-  getUserEquipment() {
+  // Create new booking
+  create(body: any) {
     return this.http
-      .get("user/equipments")
+      .post("user/bookings", body)
+      .then((response) => response.data)
+      .catch((error) => {
+        throw error
+      })
+  }
+
+  // Get sports with categories and pitches
+  getSportsWithDetails() {
+    return this.http
+      .get("public/sports/details")
+      .then((response) => response.data)
+      .catch((error) => {
+        throw error
+      })
+  }
+
+  // Get categories by sport
+  getCategoriesBySport(sportId: number) {
+    return this.http
+      .get(`public/sports/${sportId}/categories`)
+      .then((response) => response.data)
+      .catch((error) => {
+        throw error
+      })
+  }
+
+  // Get pitches by category
+  getPitchesByCategory(categoryId: number) {
+    return this.http
+      .get(`public/categories/${categoryId}/pitches`)
       .then((response) => response.data)
       .catch((error) => {
         throw error
@@ -122,4 +137,4 @@ export class ProfileService {
   }
 }
 
-export default new ProfileService()
+export default new UserBookingService()

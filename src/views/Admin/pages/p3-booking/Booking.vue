@@ -17,8 +17,20 @@
       <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-sm font-medium text-gray-600">Today's Bookings</p>
-            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.bookings_today?.length || 0 }}</p>
+            <p class="text-sm font-medium text-gray-600">Completed Bookings</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_completed_bookings || 0 }}</p>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+            <Check class="w-6 h-6 text-purple-600" />
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Confirmed Bookings</p>
+            <p class="text-3xl font-bold text-gray-900 mt-2">{{ stats.total_confirmed_bookings || 0 }}</p>
           </div>
           <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
             <Clock class="w-6 h-6 text-green-600" />
@@ -199,7 +211,8 @@ import {
   AlertCircle, 
   X, 
   Filter, 
-  Plus
+  Plus,
+  Check
 } from 'lucide-vue-next'
 import AdminBookingService from './service'
 import NewBookingDialog from './NewBookingDialog.vue'

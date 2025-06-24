@@ -306,7 +306,7 @@
                   >
                     <img
                       v-if="item.image"
-                      :src="item.image"
+                      :src="fileUrl + item.image"
                       class="w-full h-full object-cover"
                     />
                     <Package v-else class="w-5 h-5 text-blue-600" />
@@ -498,6 +498,8 @@ export default {
       //   },
       // ]),
 
+      fileUrl: import.meta.env.VITE_FILE_BASE_URL,
+
       equipment: [],
 
       categories: [
@@ -576,12 +578,12 @@ export default {
   },
 
   async created() {
-    const storedEquipment = localStorage.getItem("equipment");
-    if (storedEquipment) {
-      this.equipment = JSON.parse(storedEquipment);
-    } else {
+    // const storedEquipment = localStorage.getItem("equipment");
+    // if (storedEquipment) {
+    //   this.equipment = JSON.parse(storedEquipment);
+    // } else {
       await this.listing(); // Fetch from backend if no local data
-    }
+    // }
   },
 
   methods: {
@@ -589,14 +591,8 @@ export default {
       this.loading = true;
       try {
         const response = await AdminEquimentService.listing();
-        this.equipment = response.map((item, index) => ({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          sport_id: item.sport_id,
-          image: item.image ?? null,
-          updated_at: new Date().toISOString().slice(0, 10),
-        }));
+        this.equipment = response;
+
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -622,7 +618,7 @@ export default {
         ...item,
         categoryId: item.sport_id, // Set the current category ID for editing
       };
-      this.imagePreview = item.image || null;
+      this.imagePreview = this.fileUrl + item.image || null;
       this.selectedImage = null; // Clear any previously selected image
       this.showAddDialog = true; // Open the dialog
     },
@@ -665,7 +661,7 @@ export default {
       this.imagePreview = null; // Clear the preview
     },
 
-    confirmAddEdit() {
+    async confirmAddEdit() {
       const newId = this.equipment.length
         ? Math.max(...this.equipment.map((e) => e.id)) + 1
         : 1;
@@ -674,29 +670,26 @@ export default {
         const index = this.equipment.findIndex(
           (e) => e.id === this.selectedEquipment.id
         );
-        if (index !== -1) {
-          this.equipment[index] = {
-            ...this.selectedEquipment,
-            image: this.imagePreview || this.equipment[index].image,
-            sport_id: this.selectedEquipment.categoryId,
-          };
-        }
-      } else {
-        this.equipment.push({
+        const item = {
           ...this.selectedEquipment,
-          id: newId,
+          image: this.imagePreview || this.equipment[index].image,
+          sport_id: this.selectedEquipment.categoryId,
+        }
+        const response = await AdminEquimentService.updateEquipment(this.equipment[index].id,item);
+        
+      } else {
+        
+        const item = {
+          ...this.selectedEquipment,
           image: this.imagePreview,
           sport_id: this.selectedEquipment.categoryId, // Ensure this is set correctly
-          updated_at: new Date().toISOString().slice(0, 10),
-        });
-      }
-      console.log("Selected Equipment for Editing:", this.selectedEquipment);
-      // Save to localStorage
-      localStorage.setItem("equipment", JSON.stringify(this.equipment));
-      this.closeAddEditDialog();
+        }
 
-      // Reload the image from localStorage
-      this.loadImage();
+        const response = await AdminEquimentService.createEquipment(item);
+      }
+      this.closeAddEditDialog();
+      
+      await this.listing();
     },
 
     openDeleteDialog(item) {
@@ -708,12 +701,12 @@ export default {
       this.showDeleteDialog = false;
     },
 
-    confirmDelete() {
+    async confirmDelete() {
+      // Update localStorage after deletion
+      const response = await AdminEquimentService.deleteEquipment(this.selectedEquipment.id);
       this.equipment = this.equipment.filter(
         (e) => e.id !== this.selectedEquipment.id
       );
-      // Update localStorage after deletion
-      localStorage.setItem("equipment", JSON.stringify(this.equipment));
       this.closeDeleteDialog();
     },
 

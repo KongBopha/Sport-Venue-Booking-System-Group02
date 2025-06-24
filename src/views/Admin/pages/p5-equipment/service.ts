@@ -43,6 +43,15 @@ export class AdminEquimentService {
       });
   }
 
+  createEquipment(data) {
+    return this.http.post(`admin/equipments`, data)
+      .then(res => res.data)
+      .catch(err => {
+        console.error('Error updating equipment:', err);
+        throw err;
+      });
+  }
+
   updateEquipment(id, data) {
     return this.http.post(`admin/equipments/${id}`, data)
       .then(res => res.data)

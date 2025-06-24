@@ -26,7 +26,7 @@
                             <a href="#" class="block">
                                 <img 
                                     class="w-full h-72 object-cover transition-transform duration-700 group-hover:scale-110" 
-                                    :src="equipment.src" 
+                                    :src="fileUrl + equipment.src" 
                                     :alt="equipment.alt" 
                                 />
                                 <!-- Overlay on hover -->
@@ -114,6 +114,7 @@ import tableTennis from '../assets/images/tennis.jpg';
         name: 'Equipment',
         data() {
             return {
+                fileUrl: import.meta.env.VITE_FILE_BASE_URL,
                 equipments:[
                     {
                         src: football,
